@@ -28,19 +28,11 @@ export const SessionView = ({
   sessionStarted,
   ref,
 }: React.ComponentProps<'div'> & SessionViewProps) => {
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const { messages, send, sendToggleOutput, sendToggleInput } = useChatAndTranscription();
 
   useDebugMode();
-
-  // Al montar, asegurarse de que el modo inicial es texto (micrófono apagado, transcripción encendida)
-  useEffect(() => {
-    sendToggleInput('audio_off');
-    sendToggleOutput('transcription_on');
-    // Solo una vez al inicio
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function handleSendMessage(message: string) {
     await send(message);
@@ -48,16 +40,13 @@ export const SessionView = ({
 
   const handleToggleVoiceMode = async (enabled: boolean) => {
     setIsVoiceMode(enabled);
+    setChatOpen(!enabled);
     if (enabled) {
-      // Activar voz, desactivar transcripción
       await sendToggleInput('audio_on');
       await sendToggleOutput('audio_on');
-      //await sendToggleOutput('transcription_off');
     } else {
-      // Desactivar voz, activar transcripción
       await sendToggleInput('audio_off');
       await sendToggleOutput('audio_off');
-      //await sendToggleOutput('transcription_on');
     }
   };
 
@@ -65,17 +54,18 @@ export const SessionView = ({
     <main
       ref={ref}
       inert={disabled}
-      className={
-        // prevent page scrollbar
-        // when !chatOpen due to 'translate-y-20'
-        cn(!chatOpen && 'max-h-svh overflow-hidden')
-      }
+      // className={
+      //   // prevent page scrollbar
+      //   // when !chatOpen due to 'translate-y-20'
+      //   cn(!chatOpen && 'max-h-svh')
+      // }
     >
       <DimensionDisplay />
       <ChatMessageView
         className={cn(
           'mx-auto min-h-svh w-full max-w-2xl px-3 pt-32 pb-40 transition-[opacity,translate] duration-300 ease-out md:px-0 md:pt-36 md:pb-48',
-          chatOpen ? 'translate-y-0 opacity-100 delay-200' : 'translate-y-20 opacity-0'
+          // chatOpen ? 'translate-y-0 opacity-100 delay-200' : 'translate-y-20 opacity-0'
+           'translate-y-0 opacity-100'
         )}
       >
         <div className="space-y-3 whitespace-pre-wrap">
@@ -100,7 +90,7 @@ export const SessionView = ({
         <div className="from-background absolute bottom-0 left-0 h-12 w-full translate-y-full bg-gradient-to-b to-transparent" />
       </div>
 
-      <MediaTiles chatOpen={chatOpen} />
+      {/* <MediaTiles chatOpen={chatOpen} /> */}
 
       <div className="bg-background fixed right-0 bottom-0 left-0 z-50 px-3 pt-2 pb-3 md:px-12 md:pb-12">
         <motion.div
@@ -136,7 +126,7 @@ export const SessionView = ({
 
             <AgentControlBar
               capabilities={capabilities}
-              onChatOpenChange={setChatOpen}
+              chatOpen={chatOpen}
               onSendMessage={handleSendMessage}
               isVoiceMode={isVoiceMode}
               onToggleVoiceMode={handleToggleVoiceMode}
