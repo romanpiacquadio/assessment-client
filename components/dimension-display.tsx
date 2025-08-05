@@ -1,18 +1,22 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { useDimensionState } from '@/hooks/useDimensionState';
+import { useRouter } from 'next/navigation';
+import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
+import { CheckCircle } from 'lucide-react';
 
-const DIMENSIONS = ['Evolution', 'Outcome', 'Leverage', 'Sponsorship', 'Coverage', 'Alignment'];
+const DIMENSIONS = ['Evolution', 'Outcome']; //'Leverage', 'Sponsorship', 'Coverage', 'Alignment'];
 
 interface DimensionDisplayProps {
   isAudioMode?: boolean;
 }
 
 export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps) {
-  const { dimensionState } = useDimensionState();
-  console.log('dimensionState', dimensionState);
+  const router = useRouter();
+  const { dimensionState } = useDimensionStateContext();
+  console.log('DimensionDisplay dimensionState:', dimensionState);
+  console.log('DimensionDisplay current:', dimensionState?.current);
 
   if (!dimensionState) {
     return null;
@@ -46,10 +50,20 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
       >
         {/* Información de la dimensión actual */}
         <div className="mb-2 flex items-center gap-2">
-          <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
+          {dimensionState.current === 'COMPLETED' ? (
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          ) : (
+            <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
+          )}
           <span className="foreground text-sm font-medium">
-            Current dimension:{' '}
-            <span className="text-primary font-semibold">{dimensionState.current}</span>
+            {dimensionState.current === 'COMPLETED' ? (
+              <span className="font-semibold text-green-500">COMPLETED</span>
+            ) : (
+              <>
+                Current dimension:{' '}
+                <span className="text-primary font-semibold">{dimensionState.current}</span>
+              </>
+            )}
           </span>
         </div>
 
@@ -58,40 +72,45 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
           <>
             <div className="mb-2">
               <div className="mb-1 flex items-center justify-between">
-                <span className="muted-foreground text-xs">Progress</span>
                 <span className="muted-foreground text-xs">
-                  {currentIndex + 1} of {DIMENSIONS.length}
+                  {dimensionState.current === 'COMPLETED' ? 'Assessment Complete' : 'Progress'}
                 </span>
               </div>
               <div className="bg-muted h-2 w-full rounded-full">
                 <motion.div
-                  className="bg-primary h-2 rounded-full"
+                  className={cn(
+                    'h-2 rounded-full',
+                    dimensionState.current === 'COMPLETED' ? 'bg-green-500' : 'bg-primary'
+                  )}
                   initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
+                  animate={{
+                    width: dimensionState.current === 'COMPLETED' ? '100%' : `${progress}%`,
+                  }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
                 />
               </div>
             </div>
 
-            {/* Message of remaining dimensions */}
-            <div className="flex items-center justify-between">
-              <span className="muted-foreground text-xs">
-                {remainingDimensions > 0
-                  ? `${remainingDimensions} dimension${remainingDimensions > 1 ? 's' : ''} remaining`
-                  : 'Last dimension!'}
-              </span>
-              <div className="flex gap-1">
-                {DIMENSIONS.map((dimension, index) => (
-                  <div
-                    key={dimension}
-                    className={`h-2 w-2 rounded-full ${
-                      index <= currentIndex ? 'bg-primary' : 'bg-muted'
-                    }`}
-                    title={dimension}
-                  />
-                ))}
+            {dimensionState.current !== 'COMPLETED' && (
+              <div className="flex items-center justify-between">
+                <span className="muted-foreground text-xs">
+                  {remainingDimensions > 0
+                    ? `${remainingDimensions} dimension${remainingDimensions > 1 ? 's' : ''} remaining`
+                    : 'Last dimension!'}
+                </span>
+                <div className="flex gap-1">
+                  {DIMENSIONS.map((dimension, index) => (
+                    <div
+                      key={dimension}
+                      className={`h-2 w-2 rounded-full ${
+                        index <= currentIndex ? 'bg-primary' : 'bg-muted'
+                      }`}
+                      title={dimension}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
 
@@ -117,4 +136,4 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
       </div>
     </motion.div>
   );
-} 
+}

@@ -9,6 +9,7 @@ import { SessionView } from '@/components/session-view';
 import { Toaster } from '@/components/ui/sonner';
 import { Welcome } from '@/components/welcome';
 import useConnectionDetails from '@/hooks/useConnectionDetails';
+import { DimensionStateProvider } from '@/hooks/useDimensionStateContext';
 import type { AppConfig } from '@/lib/types';
 
 const MotionSessionView = motion.create(SessionView);
@@ -83,22 +84,24 @@ export function App({ appConfig }: AppProps) {
       />
 
       <RoomContext.Provider value={room}>
-        <RoomAudioRenderer />
-        <StartAudio label="Start Audio" />
-        {/* --- */}
-        <MotionSessionView
-          key={room.sid || room.name || 'default'}
-          capabilities={capabilities}
-          sessionStarted={sessionStarted}
-          disabled={!sessionStarted}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: sessionStarted ? 1 : 0 }}
-          transition={{
-            duration: 0.5,
-            ease: 'linear',
-            delay: sessionStarted ? 0.5 : 0,
-          }}
-        />
+        <DimensionStateProvider>
+          <RoomAudioRenderer />
+          <StartAudio label="Start Audio" />
+          {/* --- */}
+          <MotionSessionView
+            key={room.sid || room.name || 'default'}
+            capabilities={capabilities}
+            sessionStarted={sessionStarted}
+            disabled={!sessionStarted}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: sessionStarted ? 1 : 0 }}
+            transition={{
+              duration: 0.5,
+              ease: 'linear',
+              delay: sessionStarted ? 0.5 : 0,
+            }}
+          />
+        </DimensionStateProvider>
       </RoomContext.Provider>
 
       <Toaster />
