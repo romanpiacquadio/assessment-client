@@ -20,8 +20,7 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
 
   // Calculate progress
   const currentIndex = DIMENSIONS.indexOf(dimensionState.current);
-  const progress = currentIndex >= 0 ? ((currentIndex + 1) / DIMENSIONS.length) * 100 : 0;
-  const remainingDimensions = DIMENSIONS.length - (currentIndex + 1);
+  const remainingDimensions = DIMENSIONS.length - currentIndex;
   const isCompleted = dimensionState.current === 'COMPLETED';
 
   return (
@@ -67,23 +66,57 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
                   {isCompleted ? 'Assessment Complete' : 'Progress'}
                 </span>
               </div>
-              <div className="bg-muted h-2 w-full rounded-full">
-                <motion.div
-                  className={cn('h-2 rounded-full', isCompleted ? 'bg-green-500' : 'bg-primary')}
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: isCompleted ? '100%' : `${progress}%`,
-                  }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                />
+              <div className="bg-muted relative h-2 w-full overflow-hidden rounded-full">
+                {/* Completed sections in blue */}
+                {currentIndex > 0 && (
+                  <motion.div
+                    className="bg-primary absolute left-0 h-2"
+                    style={{
+                      borderRadius: '9999px 0 0 9999px', // rounded left side
+                    }}
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${(currentIndex / DIMENSIONS.length) * 100}%`,
+                    }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  />
+                )}
+                {/* Current section in orange (pulsing) */}
+                {!isCompleted && (
+                  <motion.div
+                    className="absolute h-2 animate-pulse bg-orange-500"
+                    style={{
+                      left: `${(currentIndex / DIMENSIONS.length) * 100}%`,
+                      width: `${(1 / DIMENSIONS.length) * 100}%`,
+                      borderRadius:
+                        currentIndex === 0
+                          ? '9999px'
+                          : currentIndex === DIMENSIONS.length - 1
+                            ? '0 9999px 9999px 0'
+                            : '0',
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
+                {/* When completed, show full green bar */}
+                {isCompleted && (
+                  <motion.div
+                    className="h-2 rounded-full bg-green-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  />
+                )}
               </div>
             </div>
 
             {!isCompleted && (
               <div className="flex items-center justify-between">
                 <span className="muted-foreground text-xs">
-                  {remainingDimensions > 0
-                    ? `${remainingDimensions} dimension${remainingDimensions > 1 ? 's' : ''} remaining`
+                  {remainingDimensions > 1
+                    ? `${remainingDimensions} dimensions remaining`
                     : 'Last dimension!'}
                 </span>
                 <div className="flex gap-1">
@@ -91,7 +124,11 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
                     <div
                       key={dimension}
                       className={`h-2 w-2 rounded-full ${
-                        index <= currentIndex ? 'bg-primary' : 'bg-muted'
+                        index < currentIndex
+                          ? 'bg-primary'
+                          : index === currentIndex
+                            ? 'animate-pulse bg-orange-500'
+                            : 'bg-muted'
                       }`}
                       title={dimension}
                     />
@@ -113,7 +150,11 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
                 <div
                   key={dimension}
                   className={`h-1.5 w-1.5 rounded-full ${
-                    index <= currentIndex ? 'bg-primary' : 'bg-muted'
+                    index < currentIndex
+                      ? 'bg-primary'
+                      : index === currentIndex
+                        ? 'animate-pulse bg-orange-500'
+                        : 'bg-muted'
                   }`}
                   title={dimension}
                 />
