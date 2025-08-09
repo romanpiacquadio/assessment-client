@@ -119,5 +119,11 @@ export default function useChatAndTranscription() {
     [room, getAgentIdentity]
   );
 
-  return { messages: mergedMessages, send: chat.send, sendToggleOutput, sendToggleInput };
+  return {
+    messages: mergedMessages,
+    send: chat.send,
+    sendToggleOutput,
+    sendToggleInput,
+    isHistoryLoaded,
+  };
 }
