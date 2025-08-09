@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Track } from 'livekit-client';
 import { BarVisualizer } from '@livekit/components-react';
-import { ChatTextIcon, PhoneDisconnectIcon, WaveformIcon } from '@phosphor-icons/react/dist/ssr';
+import { PhoneDisconnectIcon, WaveformIcon } from '@phosphor-icons/react/dist/ssr';
 import { ChatInput } from '@/components/livekit/chat/chat-input';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
@@ -18,7 +18,6 @@ export interface AgentControlBarProps
     UseAgentControlBarProps {
   capabilities: Pick<AppConfig, 'supportsChatInput' | 'supportsVideoInput' | 'supportsScreenShare'>;
   chatOpen: boolean;
-  // onChatOpenChange?: (open: boolean) => void;
   onSendMessage?: (message: string) => Promise<void>;
   onDisconnect?: () => void;
   onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
@@ -47,11 +46,8 @@ export function AgentControlBar({
   const {
     micTrackRef,
     visibleControls,
-    cameraToggle,
     microphoneToggle,
-    screenShareToggle,
     handleAudioDeviceChange,
-    handleVideoDeviceChange,
     handleDisconnect,
   } = useAgentControlBar({
     controls,
@@ -71,10 +67,6 @@ export function AgentControlBar({
     handleDisconnect();
     onDisconnect?.();
   };
-
-  // React.useEffect(() => {
-  //   onChatOpenChange?.(chatOpen);
-  // }, [chatOpen, onChatOpenChange]);
 
   React.useEffect(() => {
     if (!isVoiceMode && microphoneToggle.enabled) {
@@ -171,18 +163,6 @@ export function AgentControlBar({
               />
             </div>
           )}
-
-          {/* {visibleControls.chat && (
-            <Toggle
-              variant="secondary"
-              aria-label="Toggle chat"
-              pressed={chatOpen}
-              onPressedChange={setChatOpen}
-              className="aspect-square h-full"
-            >
-              <ChatTextIcon weight="bold" />
-            </Toggle>
-          )} */}
         </div>
         {visibleControls.leave && (
           <Button variant="destructive" onClick={onLeave} className="font-mono">

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type ReceivedChatMessage,
   type TextStreamData,
@@ -6,88 +6,112 @@ import {
   useRoomContext,
   useTranscriptions,
 } from '@livekit/components-react';
-import { transcriptionToChatMessage } from '@/lib/utils';
+import { historyToChatMessage, transcriptionToChatMessage } from '@/lib/utils';
+
+interface TextStreamReader {
+  readAll(): Promise<string>;
+}
 
 export default function useChatAndTranscription() {
   const transcriptions: TextStreamData[] = useTranscriptions();
   const chat = useChat();
   const room = useRoomContext();
 
-  useEffect(() => {
-    console.log('[DEBUG] Transcriptions from useTranscriptions:', transcriptions);
-    console.log('[DEBUG] Room state:', room?.state);
-  }, [transcriptions, room]);
+  const [historicalMessages, setHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
-  // Log room context para ver identidades
   useEffect(() => {
-    if (room) {
-      console.log('[DEBUG] Room localParticipant:', room.localParticipant?.identity);
-      console.log('[DEBUG] Room remoteParticipants:',
-        Array.from(room.remoteParticipants.values()).map((p) => p.identity)
-      );
-    }
-  }, [room]);
+    if (!room || isHistoryLoaded) return;
 
-  const mergedTranscriptions = useMemo(() => {
+    const handleHistoryBackfill = async (reader: TextStreamReader) => {
+      try {
+        const text = await reader.readAll();
+        const history = JSON.parse(text);
+
+        if (Array.isArray(history)) {
+          const parsed: ReceivedChatMessage[] = history.reduce((acc, item) => {
+            if (item.role === 'system') return acc;
+            acc.push(historyToChatMessage(item, room));
+            return acc;
+          }, [] as ReceivedChatMessage[]);
+
+          setHistoricalMessages(parsed);
+        }
+      } catch (error) {
+        console.error('[HISTORIAL] Error al parsear el historial de chat:', error);
+      }
+      setIsHistoryLoaded(true); 
+    };
+
+    room.registerTextStreamHandler('chat-history-backfill', handleHistoryBackfill);
+
+    return () => {
+      room.unregisterTextStreamHandler('chat-history-backfill');
+    };
+  }, [room, isHistoryLoaded]);
+
+  const mergedMessages = useMemo(() => {
     const merged: Array<ReceivedChatMessage> = [
+      ...historicalMessages,
       ...transcriptions.map((transcription) => transcriptionToChatMessage(transcription, room)),
       ...chat.chatMessages,
     ];
     return merged.sort((a, b) => a.timestamp - b.timestamp);
-  }, [transcriptions, chat.chatMessages, room]);
+  }, [historicalMessages, transcriptions, chat.chatMessages, room]);
 
-  // Log mensajes combinados que se renderizan
-  //useEffect(() => {
-  //  console.log('[DEBUG] Merged messages (transcriptions + chat):', mergedTranscriptions);
-  //}, [mergedTranscriptions]);
+  const getAgentIdentity = useCallback(() => {
+    if (!room) return null;
+    const agent = Array.from(room.remoteParticipants.values())[0];
+    return agent?.identity || null;
+  }, [room]);
 
-  // Enviar un RPC para cambiar el modo de output (voz/texto)
-  const sendToggleOutput = async (payload: string) => {
+  // Send RPC to toggle output mode (voice/text)
+  const sendToggleOutput = useCallback(async (payload: string) => {
     if (!room) {
       console.warn('[LiveKit] No room context available for sendToggleOutput');
       return;
     }
-    const agent = Array.from(room.remoteParticipants.values())[0];
-    const agentIdentity = agent?.identity;
+
+    const agentIdentity = getAgentIdentity();
     if (!agentIdentity) {
       console.warn('[LiveKit] No agent identity found for performRpc');
       return;
     }
+
     try {
       await room.localParticipant.performRpc({
         destinationIdentity: agentIdentity,
         method: 'toggle_output',
         payload,
       });
-      console.log(`[LiveKit] Sent toggle_output RPC with payload: ${payload}`);
-    } catch (err) {
-      console.error('[LiveKit] Error sending toggle_output RPC:', err);
+    } catch (error) {
+      console.error('[LiveKit] Error sending toggle_output RPC:', error);
     }
-  };
+  }, [room, getAgentIdentity]);
 
   // Enviar un RPC para cambiar el modo de input (audio on/off)
-  const sendToggleInput = async (payload: string) => {
+  const sendToggleInput = useCallback(async (payload: string) => {
     if (!room) {
       console.warn('[LiveKit] No room context available for sendToggleInput');
       return;
     }
-    const agent = Array.from(room.remoteParticipants.values())[0];
-    const agentIdentity = agent?.identity;
+
+    const agentIdentity = getAgentIdentity();
     if (!agentIdentity) {
       console.warn('[LiveKit] No agent identity found for performRpc');
       return;
     }
+
     try {
       await room.localParticipant.performRpc({
         destinationIdentity: agentIdentity,
         method: 'toggle_input',
         payload,
       });
-      console.log(`[LiveKit] Sent toggle_input RPC with payload: ${payload}`);
-    } catch (err) {
-      console.error('[LiveKit] Error sending toggle_input RPC:', err);
+    } catch (error) {
+      console.error('[LiveKit] Error sending toggle_input RPC:', error);
     }
-  };
+  }, [room, getAgentIdentity]);
 
-  return { messages: mergedTranscriptions, send: chat.send, sendToggleOutput, sendToggleInput };
+  return { messages: mergedMessages, send: chat.send, sendToggleOutput, sendToggleInput };
 }

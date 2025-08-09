@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { type ReceivedChatMessage } from '@livekit/components-react';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
@@ -32,23 +32,16 @@ export const SessionView = ({
 }: React.ComponentProps<'div'> & SessionViewProps) => {
   const [chatOpen, setChatOpen] = useState(true);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+
   const { messages, send, sendToggleOutput, sendToggleInput } = useChatAndTranscription();
   const { dimensionState } = useDimensionStateContext();
   const router = useRouter();
-  
-  console.log('SessionView', { dimensionState });
-  console.log('SessionView dimensionState?.current:', dimensionState?.current);
 
   useDebugMode();
 
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
-  console.log('SessionView assessmentCompleted:', assessmentCompleted);
 
-  // Force re-render when dimensionState changes
-  useEffect(() => {
-    console.log('SessionView useEffect - dimensionState changed:', dimensionState);
-  }, [dimensionState]);
 
   async function handleSendMessage(message: string) {
     await send(message);
@@ -66,21 +59,17 @@ export const SessionView = ({
     }
   };
 
+  const handleViewReport = () => {
+    router.push('/results');
+  };
+
   return (
-    <main
-      ref={ref}
-      inert={disabled}
-      // className={
-      //   // prevent page scrollbar
-      //   // when !chatOpen due to 'translate-y-20'
-      //   cn(!chatOpen && 'max-h-svh')
-      // }
-    >
+    <main ref={ref} inert={disabled}>
       <DimensionDisplay />
+
       <ChatMessageView
         className={cn(
           'mx-auto min-h-svh w-full max-w-2xl px-3 pt-32 pb-40 transition-[opacity,translate] duration-300 ease-out md:px-0 md:pt-36 md:pb-48',
-          // chatOpen ? 'translate-y-0 opacity-100 delay-200' : 'translate-y-20 opacity-0'
            'translate-y-0 opacity-100'
         )}
       >
@@ -99,7 +88,7 @@ export const SessionView = ({
             ))}
           </AnimatePresence>
         </div>
-        
+
         {/* Show "View Full Report" button when assessment is completed */}
         {assessmentCompleted && (
           <motion.div
@@ -110,9 +99,7 @@ export const SessionView = ({
           >
             <Button
               className="bg-green-500 px-8 py-3 text-lg font-semibold hover:bg-green-600"
-              onClick={() => {
-                router.push('/results');
-              }}
+              onClick={handleViewReport}
             >
               View Full Report
             </Button>
@@ -121,11 +108,8 @@ export const SessionView = ({
       </ChatMessageView>
 
       <div className="bg-background mp-12 fixed top-0 right-0 left-0 h-32 md:h-36">
-        {/* skrim */}
         <div className="from-background absolute bottom-0 left-0 h-12 w-full translate-y-full bg-gradient-to-b to-transparent" />
       </div>
-
-      {/* <MediaTiles chatOpen={chatOpen} /> */}
 
       {/* Only show control bar if assessment is not completed */}
       {!assessmentCompleted && (

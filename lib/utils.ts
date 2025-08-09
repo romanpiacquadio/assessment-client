@@ -35,6 +35,23 @@ export function transcriptionToChatMessage(
   };
 }
 
+export function historyToChatMessage(
+  historyItem: any, 
+  room: Room
+): ReceivedChatMessage {
+  return {
+    id: historyItem.id,
+    timestamp: historyItem.created_at * 1000, // Convertir a ms
+    message: Array.isArray(historyItem.content) 
+      ? historyItem.content.join('\n') 
+      : historyItem.content,
+    from: historyItem.role === 'user' 
+      ? room.localParticipant
+      : Array.from(room.remoteParticipants.values())
+          .find(p => p.identity.includes('agent')) || null
+  };
+}
+
 export function getOrigin(headers: Headers): string {
   const host = headers.get('host');
   const proto = headers.get('x-forwarded-proto') || 'https';
@@ -48,6 +65,10 @@ export const getAppConfig = cache(async (origin: string): Promise<AppConfig> => 
     const sandboxId = SANDBOX_ID ?? origin.split('.')[0];
 
     try {
+      if (!sandboxId) {
+        throw new Error('Sandbox ID is required');
+      }
+
       const response = await fetch(CONFIG_ENDPOINT, {
         cache: 'no-store',
         headers: { 'X-Sandbox-ID': sandboxId },
@@ -70,7 +91,7 @@ export const getAppConfig = cache(async (origin: string): Promise<AppConfig> => 
 
       return config;
     } catch (error) {
-      console.error('!!!', error);
+      console.error('ERROR: getAppConfig() - lib/utils.ts', error);
     }
   }
 

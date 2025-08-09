@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-server-sdk';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/route';
+import { createHash } from 'crypto';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
 const API_KEY = process.env.LIVEKIT_API_KEY;
@@ -18,6 +21,10 @@ export type ConnectionDetails = {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return new NextResponse('Unauthorized: No user session found', { status: 401 });
+    }
     if (LIVEKIT_URL === undefined) {
       throw new Error('LIVEKIT_URL is not defined');
     }
@@ -28,10 +35,13 @@ export async function GET() {
       throw new Error('LIVEKIT_API_SECRET is not defined');
     }
 
-    // Generate participant token
-    const participantName = 'user';
-    const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
-    const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;
+    const userEmail = session.user.email;
+    const participantName = session.user.name ?? userEmail.split('@')[0];
+
+    const emailHash = createHash('sha256').update(userEmail).digest('hex');
+
+    const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}_${emailHash}`;
+    const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}_${emailHash}`;
     const participantToken = await createParticipantToken(
       { identity: participantIdentity, name: participantName },
       roomName
