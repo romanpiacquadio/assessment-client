@@ -40,7 +40,7 @@ export default function useChatAndTranscription() {
       } catch (error) {
         console.error('[HISTORIAL] Error al parsear el historial de chat:', error);
       }
-      setIsHistoryLoaded(true); 
+      setIsHistoryLoaded(true);
     };
 
     room.registerTextStreamHandler('chat-history-backfill', handleHistoryBackfill);
@@ -66,52 +66,58 @@ export default function useChatAndTranscription() {
   }, [room]);
 
   // Send RPC to toggle output mode (voice/text)
-  const sendToggleOutput = useCallback(async (payload: string) => {
-    if (!room) {
-      console.warn('[LiveKit] No room context available for sendToggleOutput');
-      return;
-    }
+  const sendToggleOutput = useCallback(
+    async (payload: string) => {
+      if (!room) {
+        console.warn('[LiveKit] No room context available for sendToggleOutput');
+        return;
+      }
 
-    const agentIdentity = getAgentIdentity();
-    if (!agentIdentity) {
-      console.warn('[LiveKit] No agent identity found for performRpc');
-      return;
-    }
+      const agentIdentity = getAgentIdentity();
+      if (!agentIdentity) {
+        console.warn('[LiveKit] No agent identity found for performRpc');
+        return;
+      }
 
-    try {
-      await room.localParticipant.performRpc({
-        destinationIdentity: agentIdentity,
-        method: 'toggle_output',
-        payload,
-      });
-    } catch (error) {
-      console.error('[LiveKit] Error sending toggle_output RPC:', error);
-    }
-  }, [room, getAgentIdentity]);
+      try {
+        await room.localParticipant.performRpc({
+          destinationIdentity: agentIdentity,
+          method: 'toggle_output',
+          payload,
+        });
+      } catch (error) {
+        console.error('[LiveKit] Error sending toggle_output RPC:', error);
+      }
+    },
+    [room, getAgentIdentity]
+  );
 
   // Enviar un RPC para cambiar el modo de input (audio on/off)
-  const sendToggleInput = useCallback(async (payload: string) => {
-    if (!room) {
-      console.warn('[LiveKit] No room context available for sendToggleInput');
-      return;
-    }
+  const sendToggleInput = useCallback(
+    async (payload: string) => {
+      if (!room) {
+        console.warn('[LiveKit] No room context available for sendToggleInput');
+        return;
+      }
 
-    const agentIdentity = getAgentIdentity();
-    if (!agentIdentity) {
-      console.warn('[LiveKit] No agent identity found for performRpc');
-      return;
-    }
+      const agentIdentity = getAgentIdentity();
+      if (!agentIdentity) {
+        console.warn('[LiveKit] No agent identity found for performRpc');
+        return;
+      }
 
-    try {
-      await room.localParticipant.performRpc({
-        destinationIdentity: agentIdentity,
-        method: 'toggle_input',
-        payload,
-      });
-    } catch (error) {
-      console.error('[LiveKit] Error sending toggle_input RPC:', error);
-    }
-  }, [room, getAgentIdentity]);
+      try {
+        await room.localParticipant.performRpc({
+          destinationIdentity: agentIdentity,
+          method: 'toggle_input',
+          payload,
+        });
+      } catch (error) {
+        console.error('[LiveKit] Error sending toggle_input RPC:', error);
+      }
+    },
+    [room, getAgentIdentity]
+  );
 
   return { messages: mergedMessages, send: chat.send, sendToggleOutput, sendToggleInput };
 }

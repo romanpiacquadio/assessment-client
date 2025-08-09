@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
 import { CheckCircle } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
 
@@ -69,10 +69,7 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
               </div>
               <div className="bg-muted h-2 w-full rounded-full">
                 <motion.div
-                  className={cn(
-                    'h-2 rounded-full',
-                    isCompleted ? 'bg-green-500' : 'bg-primary'
-                  )}
+                  className={cn('h-2 rounded-full', isCompleted ? 'bg-green-500' : 'bg-primary')}
                   initial={{ width: 0 }}
                   animate={{
                     width: isCompleted ? '100%' : `${progress}%`,

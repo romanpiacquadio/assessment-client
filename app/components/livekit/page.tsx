@@ -58,6 +58,10 @@ export default function LiveKit() {
               supportsVideoInput: true,
               supportsScreenShare: true,
             }}
+            chatOpen={false}
+            onSendMessage={async () => {}}
+            isVoiceMode={false}
+            onToggleVoiceMode={async () => {}}
           />
         </div>
       </Container>

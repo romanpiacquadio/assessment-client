@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { ReactNode, createContext, useContext } from 'react';
 import { useDimensionState } from './useDimensionState';
 
 interface DimensionStateContextType {
@@ -31,4 +31,4 @@ export function useDimensionStateContext() {
     throw new Error('useDimensionStateContext must be used within a DimensionStateProvider');
   }
   return context;
-} 
+}

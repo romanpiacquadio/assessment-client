@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { type ReceivedChatMessage } from '@livekit/components-react';
+import { DimensionDisplay } from '@/components/dimension-display';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
 import { ChatEntry } from '@/components/livekit/chat/chat-entry';
 import { ChatMessageView } from '@/components/livekit/chat/chat-message-view';
-import { DimensionDisplay } from '@/components/dimension-display';
+import { Button } from '@/components/ui/button';
 import useChatAndTranscription from '@/hooks/useChatAndTranscription';
 import { useDebugMode } from '@/hooks/useDebug';
-import { useRouter } from 'next/navigation';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
 interface SessionViewProps {
   disabled: boolean;
@@ -42,7 +42,6 @@ export const SessionView = ({
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
 
-
   async function handleSendMessage(message: string) {
     await send(message);
   }
@@ -70,7 +69,7 @@ export const SessionView = ({
       <ChatMessageView
         className={cn(
           'mx-auto min-h-svh w-full max-w-2xl px-3 pt-32 pb-40 transition-[opacity,translate] duration-300 ease-out md:px-0 md:pt-36 md:pb-48',
-           'translate-y-0 opacity-100'
+          'translate-y-0 opacity-100'
         )}
       >
         <div className="space-y-3 whitespace-pre-wrap">

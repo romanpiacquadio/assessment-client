@@ -30,7 +30,7 @@ const animationProps = {
     scale: 0,
   },
   transition: {
-    type: 'spring',
+    type: 'spring' as const,
     stiffness: 675,
     damping: 75,
     mass: 1,
@@ -111,11 +111,9 @@ export function MediaTiles({ chatOpen }: MediaTilesProps) {
   const agentAnimate = {
     ...animationProps.animate,
     scale: chatOpen ? 1 : 3,
-    transition,
   };
   const avatarAnimate = {
     ...animationProps.animate,
-    transition,
   };
   const agentLayoutTransition = transition;
   const avatarLayoutTransition = transition;

@@ -72,18 +72,15 @@ export function useDimensionState() {
 
     const registerHandler = () => {
       try {
-        room.registerTextStreamHandler(
-          'agent-state-update',
-          async (reader, participantInfo) => {
-            try {
-              const text = await reader.readAll();
-              const data = JSON.parse(text) as AgentStateData;
-              processAgentData(data);
-            } catch (error) {
-              console.error('[DimensionState] Error processing stream data:', error);
-            }
+        room.registerTextStreamHandler('agent-state-update', async (reader, participantInfo) => {
+          try {
+            const text = await reader.readAll();
+            const data = JSON.parse(text) as AgentStateData;
+            processAgentData(data);
+          } catch (error) {
+            console.error('[DimensionState] Error processing stream data:', error);
           }
-        );
+        });
         handlerRegistered.current = true;
       } catch (error) {
         console.error('[DimensionState] Error registering handler:', error);
@@ -95,7 +92,7 @@ export function useDimensionState() {
     } else {
       const handleConnected = () => registerHandler();
       room.on('connected', handleConnected);
-      
+
       return () => {
         room.off('connected', handleConnected);
       };

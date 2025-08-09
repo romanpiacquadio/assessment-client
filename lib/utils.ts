@@ -6,7 +6,6 @@ import type { ReceivedChatMessage, TextStreamData } from '@livekit/components-re
 import { APP_CONFIG_DEFAULTS } from '@/app-config';
 import type { AppConfig, SandboxConfig } from './types';
 
-
 export const CONFIG_ENDPOINT = process.env.NEXT_PUBLIC_APP_CONFIG_ENDPOINT;
 console.log('CONFIG_ENDPOINT', CONFIG_ENDPOINT);
 export const SANDBOX_ID = process.env.SANDBOX_ID;
@@ -35,20 +34,25 @@ export function transcriptionToChatMessage(
   };
 }
 
-export function historyToChatMessage(
-  historyItem: any, 
-  room: Room
-): ReceivedChatMessage {
+interface HistoryItem {
+  id: string;
+  created_at: number;
+  content: string | string[];
+  role: 'user' | 'assistant' | 'system';
+}
+
+export function historyToChatMessage(historyItem: HistoryItem, room: Room): ReceivedChatMessage {
   return {
     id: historyItem.id,
     timestamp: historyItem.created_at * 1000, // Convertir a ms
-    message: Array.isArray(historyItem.content) 
-      ? historyItem.content.join('\n') 
+    message: Array.isArray(historyItem.content)
+      ? historyItem.content.join('\n')
       : historyItem.content,
-    from: historyItem.role === 'user' 
-      ? room.localParticipant
-      : Array.from(room.remoteParticipants.values())
-          .find(p => p.identity.includes('agent')) || null
+    from:
+      historyItem.role === 'user'
+        ? room.localParticipant
+        : Array.from(room.remoteParticipants.values()).find((p) => p.identity.includes('agent')) ||
+          undefined,
   };
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export default function ErrorPage() {
   const searchParams = useSearchParams();
@@ -39,29 +39,29 @@ export default function ErrorPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center max-w-md mx-auto p-6">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
-        <p className="text-gray-600 mb-6">{getErrorMessage(error)}</p>
-        
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="mx-auto max-w-md p-6 text-center">
+        <h1 className="mb-4 text-2xl font-bold text-red-600">Authentication Error</h1>
+        <p className="mb-6 text-gray-600">{getErrorMessage(error)}</p>
+
         <div className="space-y-3">
           <Link
             href="/auth/signin"
-            className="block w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="block w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
           >
             Try again
           </Link>
-          
+
           <Link
             href="/"
-            className="block w-full bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            className="block w-full rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
           >
             Back to home
           </Link>
         </div>
-        
+
         {error && (
-          <div className="mt-4 p-3 bg-gray-100 rounded text-sm">
+          <div className="mt-4 rounded bg-gray-100 p-3 text-sm">
             <p className="font-semibold">Error code:</p>
             <p className="font-mono">{error}</p>
           </div>
@@ -69,4 +69,4 @@ export default function ErrorPage() {
       </div>
     </div>
   );
-} 
+}
