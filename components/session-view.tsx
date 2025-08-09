@@ -8,6 +8,7 @@ import { DimensionDisplay } from '@/components/dimension-display';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
 import { ChatEntry } from '@/components/livekit/chat/chat-entry';
 import { ChatMessageView } from '@/components/livekit/chat/chat-message-view';
+import { MediaTiles } from '@/components/livekit/media-tiles';
 import { Button } from '@/components/ui/button';
 import useChatAndTranscription from '@/hooks/useChatAndTranscription';
 import { useDebugMode } from '@/hooks/useDebug';
@@ -65,6 +66,8 @@ export const SessionView = ({
   return (
     <main ref={ref} inert={disabled}>
       <DimensionDisplay />
+      {/* Only show MediaTiles when chat is closed (agent speaking) and not in voice mode */}
+      {!isVoiceMode && !chatOpen && <MediaTiles chatOpen={chatOpen} />}
 
       <ChatMessageView
         className={cn(
@@ -107,7 +110,7 @@ export const SessionView = ({
       </ChatMessageView>
 
       <div className="bg-background mp-12 fixed top-0 right-0 left-0 h-32 md:h-36">
-        <div className="from-background absolute bottom-0 left-0 h-12 w-full translate-y-full bg-gradient-to-b to-transparent" />
+        {/* Gradient removed to prevent text fading */}
       </div>
 
       {/* Only show control bar if assessment is not completed */}
@@ -152,8 +155,7 @@ export const SessionView = ({
                 onToggleVoiceMode={handleToggleVoiceMode}
               />
             </div>
-            {/* skrim */}
-            <div className="from-background border-background absolute top-0 left-0 h-12 w-full -translate-y-full bg-gradient-to-t to-transparent" />
+            {/* Gradient removed to prevent text fading at bottom */}
           </motion.div>
         </div>
       )}

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Track } from 'livekit-client';
 import { BarVisualizer } from '@livekit/components-react';
-import { PhoneDisconnectIcon, WaveformIcon } from '@phosphor-icons/react/dist/ssr';
+import { PhoneDisconnectIcon, WaveformIcon, X } from '@phosphor-icons/react/dist/ssr';
 import { ChatInput } from '@/components/livekit/chat/chat-input';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
@@ -74,6 +74,72 @@ export function AgentControlBar({
     }
   }, [isVoiceMode, microphoneToggle]);
 
+  // Voice Mode UI - Compact centered interface
+  if (isVoiceMode) {
+    return (
+      <div
+        aria-label="Voice mode controls"
+        className={cn('flex flex-col items-center justify-center gap-3 py-3', className)}
+        {...props}
+      >
+        {/* Waveform visualization - ABOVE buttons */}
+        <div className="flex items-center justify-center">
+          <BarVisualizer
+            barCount={7}
+            trackRef={micTrackRef}
+            options={{ minHeight: 8, maxHeight: 36 }}
+            className="flex h-12 items-center justify-center gap-1"
+          >
+            <span
+              className={cn([
+                'bg-primary w-1 rounded-full transition-all duration-150',
+                'data-lk-muted:bg-muted',
+              ])}
+            />
+          </BarVisualizer>
+        </div>
+
+        {/* Buttons row - BELOW waveform */}
+        <div className="flex items-center gap-4">
+          {/* Single microphone toggle */}
+          {visibleControls.microphone && (
+            <div className="group relative">
+              <TrackToggle
+                variant="primary"
+                source={Track.Source.Microphone}
+                pressed={microphoneToggle.enabled}
+                onPressedChange={microphoneToggle.toggle}
+                className="h-12 w-12 rounded-full p-0"
+              />
+              {/* Tooltip for microphone */}
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 transform rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                {microphoneToggle.enabled ? 'Mute microphone' : 'Unmute microphone'}
+              </div>
+            </div>
+          )}
+
+          {/* Exit voice mode button */}
+          <div className="group relative">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onToggleVoiceMode?.(false)}
+              className="h-10 w-10 rounded-full"
+              aria-label="Exit voice mode"
+            >
+              <X size={16} />
+            </Button>
+            {/* Tooltip for exit */}
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 transform rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              Exit voice mode
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular text mode UI
   return (
     <div
       aria-label="Voice assistant controls"
