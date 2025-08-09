@@ -105,15 +105,21 @@ export function AgentControlBar({
       <div className="flex flex-row justify-between gap-1">
         <div className="flex gap-1">
           {typeof isVoiceMode === 'boolean' && typeof onToggleVoiceMode === 'function' && (
-            <Toggle
-              variant="primary"
-              aria-label={isVoiceMode ? 'Desactivar modo voz' : 'Activar modo voz'}
-              pressed={isVoiceMode}
-              onPressedChange={onToggleVoiceMode}
-              className="mr-2 aspect-square h-full"
-            >
-              <WaveformIcon weight={isVoiceMode ? 'fill' : 'regular'} />
-            </Toggle>
+            <div className="group relative">
+              <Toggle
+                variant="primary"
+                aria-label={isVoiceMode ? 'Desactivar modo voz' : 'Activar modo voz'}
+                pressed={isVoiceMode}
+                onPressedChange={onToggleVoiceMode}
+                className="mr-2 aspect-square h-full"
+              >
+                <WaveformIcon weight={isVoiceMode ? 'fill' : 'regular'} />
+              </Toggle>
+              {/* Tooltip */}
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 transform rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                {isVoiceMode ? 'Turn off voice mode' : 'Use voice mode'}
+              </div>
+            </div>
           )}
           {visibleControls.microphone && (
             <div className="flex items-center gap-0">
