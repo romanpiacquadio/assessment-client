@@ -1,17 +1,17 @@
 import type { AppConfig } from './lib/types';
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'LiveKit',
+  companyName: 'CloudX',
   pageTitle: 'Voice Assistant',
   pageDescription: 'A voice assistant built with LiveKit',
 
   supportsChatInput: true,
-  supportsVideoInput: true,
-  supportsScreenShare: true,
+  supportsVideoInput: false,
+  supportsScreenShare: false,
 
-  logo: '/lk-logo.svg',
+  logo: '/cloudx-color.svg',
   accent: '#002cf2',
-  logoDark: '/lk-logo-dark.svg',
+  logoDark: '/cloudx-color.svg',
   accentDark: '#1fd5f9',
-  startButtonText: 'Start call',
+  startButtonText: 'Start assessment',
 };

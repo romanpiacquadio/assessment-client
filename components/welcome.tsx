@@ -20,18 +20,18 @@ export const Welcome = ({
       className="fixed inset-0 z-10 mx-auto flex h-svh flex-col items-center justify-center text-center"
     >
       <CodeBlockIcon size={64} className="mx-auto mb-4" />
-      <h1 className="font-semibold">Voice Agent Quick Start</h1>
+      <h1 className="font-semibold">AI Maturity Assessment</h1>
       <p className="text-muted-foreground max-w-prose pt-1 font-medium">
-        Start a call to chat with your voice agent.
+        Start and our AI agent will guide you through.
         <br />
-        Need help getting set up? Check out the{' '}
+        Need to contact us? Visit our{' '}
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://docs.livekit.io/agents/start/voice-ai/"
+          href="https://cloudx.com/contact-us"
           className="underline underline-offset-4"
         >
-          Voice AI quickstart
+          contact page
         </a>
         .
       </p>
