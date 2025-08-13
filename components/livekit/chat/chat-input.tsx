@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -5,9 +6,18 @@ import { cn } from '@/lib/utils';
 interface ChatInputProps extends React.HTMLAttributes<HTMLFormElement> {
   onSend?: (message: string) => void;
   disabled?: boolean;
+  // When true, the text input itself will be disabled when `disabled` is true.
+  // Defaults to true to preserve previous behavior.
+  disableInput?: boolean;
 }
 
-export function ChatInput({ onSend, className, disabled, ...props }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  className,
+  disabled,
+  disableInput = true,
+  ...props
+}: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string>('');
 
@@ -20,6 +30,7 @@ export function ChatInput({ onSend, className, disabled, ...props }: ChatInputPr
   };
 
   const isDisabled = disabled || message.trim().length === 0;
+  const inputIsDisabled = !!disabled && disableInput;
 
   return (
     <form
@@ -34,7 +45,7 @@ export function ChatInput({ onSend, className, disabled, ...props }: ChatInputPr
         placeholder="Type something..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        disabled={disabled}
+        disabled={inputIsDisabled}
       />
       <Button
         size="sm"

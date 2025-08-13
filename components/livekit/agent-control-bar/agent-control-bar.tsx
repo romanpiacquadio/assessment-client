@@ -161,6 +161,7 @@ export function AgentControlBar({
             <ChatInput
               onSend={handleSendMessage}
               disabled={isVoiceMode || isSendingMessage}
+              disableInput={isVoiceMode}
               className="w-full"
             />
           </div>
