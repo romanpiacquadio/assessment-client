@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
+import remarkGfm from 'remark-gfm';
 import { type ReceivedChatMessage } from '@livekit/components-react';
 import { DimensionDisplay } from '@/components/dimension-display';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
@@ -86,7 +88,13 @@ export const SessionView = ({
                 exit={{ opacity: 1, height: 'auto', translateY: 0.001 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
               >
-                <ChatEntry hideName key={message.id} entry={message} />
+                <ChatEntry
+                  hideName
+                  entry={message}
+                  messageFormatter={(text: string) => (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+                  )}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
