@@ -2,8 +2,8 @@ import type { AppConfig } from './lib/types';
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
   companyName: 'CloudX',
-  pageTitle: 'Voice Assistant',
-  pageDescription: 'A voice assistant built with LiveKit',
+  pageTitle: 'AI Maturity Assessment',
+  pageDescription: 'An AI agent for maturity assessment',
 
   supportsChatInput: true,
   supportsVideoInput: false,

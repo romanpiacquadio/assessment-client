@@ -244,4 +244,35 @@
       background-position: 250% 0;
     }
   }
+
+  /* Print styles for /results to export PDF with same aesthetics */
+  @media print {
+    /* Hide floating theme toggle and any elements explicitly marked */
+    .no-print,
+    .group.fixed,
+    header.fixed {
+      display: none !important;
+    }
+
+    html,
+    body {
+      background: var(--background) !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Expand report to full width for PDF */
+    #printable-report {
+      max-width: 100% !important;
+      padding: 24px !important;
+    }
+
+    /* Avoid page breaks inside key blocks */
+    #printable-report > div,
+    #printable-report .rounded-lg,
+    #printable-report ul {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  }
 }

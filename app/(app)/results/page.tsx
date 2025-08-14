@@ -74,7 +74,7 @@ export default function ResultsPage() {
   };
 
   return (
-    <div className={cn('container mx-auto max-w-4xl p-6')}>
+    <div id="printable-report" className={cn('container mx-auto max-w-4xl p-6')}>
       <h1 className="mb-8 text-3xl font-bold">Assessment Results</h1>
 
       <div className="mb-8 rounded-lg border p-6">
@@ -112,9 +112,11 @@ export default function ResultsPage() {
         </ul>
       </div>
 
-      <div className="flex gap-4">
+      <div className="no-print flex gap-4">
         <Button onClick={() => router.push('/')}>Start New Assessment</Button>
-        <Button variant="outline">Download Report</Button>
+        <Button variant="outline" onClick={() => window.print()}>
+          Download Report
+        </Button>
       </div>
     </div>
   );
