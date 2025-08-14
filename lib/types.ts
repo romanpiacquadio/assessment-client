@@ -30,3 +30,33 @@ export interface SandboxConfig {
     | { type: 'boolean'; value: boolean }
     | null;
 }
+
+export interface DimensionState {
+  Evolution: { scoring: number | null; justification: string };
+  Outcome: { scoring: number | null; justification: string };
+  Leverage: { scoring: number | null; justification: string };
+  Sponsorship: { scoring: number | null; justification: string };
+  Coverage: { scoring: number | null; justification: string };
+  Alignment: { scoring: number | null; justification: string };
+  current: string;
+  final_report?: {
+    executive_summary: string;
+    recommendations: Recommendation[];
+  };
+}
+
+export interface Recommendation {
+  text: string;
+  priority: 'High' | 'Medium' | 'Low';
+}
+
+export type AgentStateData = Partial<DimensionState> & {
+  current?: string;
+};
+
+// New interface for analysis notifications
+export interface AnalysisNotification {
+  type: 'dimension_analysis';
+  status: 'started' | 'completed';
+  dimension: string;
+}

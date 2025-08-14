@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import remarkGfm from 'remark-gfm';
 import { type ReceivedChatMessage } from '@livekit/components-react';
+import { AnalysisStatus } from '@/components/analysis-status';
 import { DimensionDisplay } from '@/components/dimension-display';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
 import { ChatEntry } from '@/components/livekit/chat/chat-entry';
@@ -38,7 +39,7 @@ export const SessionView = ({
 
   const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded } =
     useChatAndTranscription();
-  const { dimensionState } = useDimensionStateContext();
+  const { dimensionState, analyzingDimension } = useDimensionStateContext();
   const router = useRouter();
 
   useDebugMode();
@@ -97,6 +98,21 @@ export const SessionView = ({
                 />
               </motion.div>
             ))}
+          </AnimatePresence>
+
+          {/* Analysis Status Component */}
+          <AnimatePresence>
+            {analyzingDimension && (
+              <motion.div
+                key="analysis-status"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <AnalysisStatus className="mt-4" />
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 

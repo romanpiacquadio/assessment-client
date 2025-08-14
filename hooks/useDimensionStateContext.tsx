@@ -6,6 +6,7 @@ import { useDimensionState } from './useDimensionState';
 interface DimensionStateContextType {
   dimensionState: any;
   isCompleted: boolean;
+  analyzingDimension: string | null;
   reset: () => void;
 }
 

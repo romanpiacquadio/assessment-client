@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { RadarChart } from '@/components/radar-chart';
 import { Button } from '@/components/ui/button';
+import { DimensionState, Recommendation } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'maturity-model-state';
@@ -14,25 +15,6 @@ const DIMENSIONS = [
   'Coverage',
   'Alignment',
 ] as const;
-
-interface DimensionState {
-  Evolution: { scoring: number | null; justification: string };
-  Outcome: { scoring: number | null; justification: string };
-  Leverage: { scoring: number | null; justification: string };
-  Sponsorship: { scoring: number | null; justification: string };
-  Coverage: { scoring: number | null; justification: string };
-  Alignment: { scoring: number | null; justification: string };
-  current: string;
-  final_report?: {
-    executive_summary: string;
-    recommendations: Recommendation[];
-  };
-}
-
-interface Recommendation {
-  text: string;
-  priority: 'High' | 'Medium' | 'Low';
-}
 
 export default function ResultsPage() {
   const router = useRouter();

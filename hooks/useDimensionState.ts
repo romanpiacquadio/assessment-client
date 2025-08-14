@@ -1,24 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRoomContext } from '@livekit/components-react';
+import { AgentStateData, AnalysisNotification, DimensionState } from '@/lib/types';
 
 const STORAGE_KEY = 'maturity-model-state';
-
-interface DimensionState {
-  Evolution: { scoring: number | null; justification: string };
-  Outcome: { scoring: number | null; justification: string };
-  current: string;
-  final_report?: {
-    executive_summary: string;
-    recommendations: Array<{
-      text: string;
-      priority: 'High' | 'Medium' | 'Low';
-    }>;
-  };
-}
-
-type AgentStateData = Partial<DimensionState> & {
-  current?: string;
-};
 
 const loadStateFromStorage = (): DimensionState | null => {
   try {
@@ -41,12 +25,19 @@ const saveStateToStorage = (state: DimensionState): void => {
 export function useDimensionState() {
   const [dimensionState, setDimensionState] = useState<DimensionState | null>(loadStateFromStorage);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [analyzingDimension, setAnalyzingDimension] = useState<string | null>(null);
   const room = useRoomContext();
   const handlerRegistered = useRef(false);
+  const analysisTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const reset = useCallback(() => {
     setDimensionState(null);
     setIsCompleted(false);
+    setAnalyzingDimension(null);
+    if (analysisTimeoutRef.current) {
+      clearTimeout(analysisTimeoutRef.current);
+      analysisTimeoutRef.current = null;
+    }
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
@@ -59,6 +50,31 @@ export function useDimensionState() {
 
     const newState = data as DimensionState;
     setDimensionState(newState);
+  }, []);
+
+  const processAnalysisNotification = useCallback((notification: AnalysisNotification) => {
+    if (notification.status === 'started') {
+      // Clear any existing timeout
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+      }
+
+      setAnalyzingDimension(notification.dimension);
+
+      // Set 15-second timeout
+      analysisTimeoutRef.current = setTimeout(() => {
+        console.warn('[DimensionState] Analysis timeout after 15 seconds');
+        setAnalyzingDimension(null);
+        analysisTimeoutRef.current = null;
+      }, 15000);
+    } else if (notification.status === 'completed') {
+      // Clear timeout and stop analyzing
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+        analysisTimeoutRef.current = null;
+      }
+      setAnalyzingDimension(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -81,6 +97,20 @@ export function useDimensionState() {
             console.error('[DimensionState] Error processing stream data:', error);
           }
         });
+
+        // New handler for analysis notifications
+        room.registerTextStreamHandler('agent-analysis-notification', async (reader) => {
+          try {
+            const text = await reader.readAll();
+            const notification = JSON.parse(text) as AnalysisNotification;
+            if (notification.type === 'dimension_analysis') {
+              processAnalysisNotification(notification);
+            }
+          } catch (error) {
+            console.error('[DimensionState] Error processing analysis notification:', error);
+          }
+        });
+
         handlerRegistered.current = true;
       } catch (error) {
         console.error('[DimensionState] Error registering handler:', error);
@@ -101,7 +131,16 @@ export function useDimensionState() {
     return () => {
       handlerRegistered.current = false;
     };
-  }, [room, processAgentData]);
+  }, [room, processAgentData, processAnalysisNotification]);
 
-  return { dimensionState, isCompleted, reset };
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  return { dimensionState, isCompleted, analyzingDimension, reset };
 }
