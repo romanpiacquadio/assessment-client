@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { RadarChart } from '@/components/radar-chart';
 import { Button } from '@/components/ui/button';
+import { useClearSession } from '@/hooks/useClearSession';
 import { DimensionState, Recommendation } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -18,16 +19,31 @@ const DIMENSIONS = [
 
 export default function ResultsPage() {
   const router = useRouter();
+  const { clearSession, isClearing, error } = useClearSession();
   const savedState = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
   const dimensionState: DimensionState | null = savedState ? JSON.parse(savedState) : null;
+
+  const handleStartNewAssessment = async () => {
+    try {
+      await clearSession();
+      // Clear local storage as well
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      router.push('/');
+    } catch (err) {
+      console.error('Error starting new assessment:', err);
+    }
+  };
 
   if (!dimensionState || dimensionState.current !== 'COMPLETED') {
     return (
       <div className="flex h-screen flex-col items-center justify-center">
         <p className="mb-4 text-lg">No assessment results found</p>
-        <Button onClick={() => router.push('/')} className="mt-4">
-          Start New Assessment
+        <Button onClick={handleStartNewAssessment} className="mt-4" disabled={isClearing}>
+          {isClearing ? 'Clearing...' : 'Start New Assessment'}
         </Button>
+        {error && <p className="mt-2 text-sm text-red-600">Error: {error}</p>}
       </div>
     );
   }
@@ -37,7 +53,10 @@ export default function ResultsPage() {
     return (
       <div className="flex h-screen flex-col items-center justify-center">
         <p className="mb-4 text-lg">No results data found</p>
-        <Button onClick={() => router.push('/')}>Return Home</Button>
+        <Button onClick={handleStartNewAssessment} disabled={isClearing}>
+          {isClearing ? 'Clearing...' : 'Start New Assessment'}
+        </Button>
+        {error && <p className="mt-2 text-sm text-red-600">Error: {error}</p>}
       </div>
     );
   }
@@ -95,11 +114,14 @@ export default function ResultsPage() {
       </div>
 
       <div className="no-print flex gap-4">
-        <Button onClick={() => router.push('/')}>Start New Assessment</Button>
+        <Button onClick={handleStartNewAssessment} disabled={isClearing}>
+          {isClearing ? 'Clearing...' : 'Start New Assessment'}
+        </Button>
         <Button variant="outline" onClick={() => window.print()}>
           Download Report
         </Button>
       </div>
+      {error && <p className="mt-2 text-sm text-red-600">Error: {error}</p>}
     </div>
   );
 }

@@ -169,7 +169,7 @@ export const SessionView = ({
               >
                 <p className="animate-text-shimmer inline-block !bg-clip-text text-sm font-semibold text-transparent">
                   {!isHistoryLoaded
-                    ? 'Loading previous messages...'
+                    ? 'Loading messages...'
                     : isVoiceMode
                       ? 'Agent is listening, ask it a question'
                       : 'Type your message or enable voice mode'}
