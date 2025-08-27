@@ -36,26 +36,43 @@ export function ChatInput({
     <form
       {...props}
       onSubmit={handleSubmit}
-      className={cn('flex items-center gap-2 rounded-md pl-1 text-sm', className)}
+      className={cn('flex flex-col gap-1 rounded-md pl-1 text-sm', className)}
     >
-      <input
-        ref={inputRef}
-        type="text"
-        className="flex-1 focus:outline-none"
-        placeholder="Type something..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        disabled={inputIsDisabled}
-      />
-      <Button
-        size="sm"
-        type="submit"
-        variant={isDisabled ? 'secondary' : 'primary'}
-        disabled={isDisabled}
-        className="font-mono"
-      >
-        SEND
-      </Button>
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          className="flex-1 focus:outline-none"
+          placeholder="Type something..."
+          value={message}
+          onChange={(e) => {
+            if (e.target.value.length > 4000) return;
+            setMessage(e.target.value);
+          }}
+          disabled={inputIsDisabled}
+          maxLength={4000}
+        />
+        <Button
+          size="sm"
+          type="submit"
+          variant={isDisabled ? 'secondary' : 'primary'}
+          disabled={isDisabled}
+          className="font-mono"
+        >
+          SEND
+        </Button>
+      </div>
+      <div className="flex justify-end">
+        <span
+          className={cn(
+            'text-muted-foreground text-xs',
+            message.length > 3800 && 'text-amber-500',
+            message.length >= 4000 && 'text-red-500'
+          )}
+        >
+          {message.length}/4000
+        </span>
+      </div>
     </form>
   );
 }
