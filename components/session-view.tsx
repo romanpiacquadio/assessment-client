@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
@@ -36,19 +36,30 @@ export const SessionView = ({
 }: React.ComponentProps<'div'> & SessionViewProps) => {
   const [chatOpen, setChatOpen] = useState(true);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded } =
     useChatAndTranscription();
   const { dimensionState, analyzingDimension } = useDimensionStateContext();
   const router = useRouter();
+  const chatViewRef = useRef<{ scrollToBottom: () => void }>(null);
 
   useDebugMode();
 
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
 
+  // Keep the space permanently - don't remove it
+  // The space will remain to give room for the agent's response
+
   async function handleSendMessage(message: string) {
+    setIsWaitingForResponse(true);
     await send(message);
+
+    // Scroll to bottom after sending message with a longer delay
+    setTimeout(() => {
+      chatViewRef.current?.scrollToBottom();
+    }, 300);
   }
 
   const handleToggleVoiceMode = async (enabled: boolean) => {
@@ -74,6 +85,7 @@ export const SessionView = ({
       {!isVoiceMode && !chatOpen && <MediaTiles chatOpen={chatOpen} />}
 
       <ChatMessageView
+        ref={chatViewRef}
         className={cn(
           'mx-auto min-h-svh w-full max-w-2xl px-3 pt-32 pb-40 transition-[opacity,translate] duration-300 ease-out md:px-0 md:pt-36 md:pb-48',
           'translate-y-0 opacity-100'
@@ -114,6 +126,18 @@ export const SessionView = ({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Space for response when waiting */}
+          {isWaitingForResponse && (
+            <motion.div
+              key="response-space"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="min-h-[500px]"
+            />
+          )}
         </div>
 
         {/* Show "View Full Report" button when assessment is completed */}

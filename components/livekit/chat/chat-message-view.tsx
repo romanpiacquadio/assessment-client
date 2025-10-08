@@ -1,41 +1,40 @@
 'use client';
 
-import { type RefObject, useEffect, useRef } from 'react';
+import React, { type RefObject, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export function useAutoScroll(scrollContentContainerRef: RefObject<Element | null>) {
-  useEffect(() => {
-    function scrollToBottom() {
-      const { scrollingElement } = document;
-
-      if (scrollingElement) {
-        scrollingElement.scrollTop = scrollingElement.scrollHeight;
-      }
+  const scrollToBottom = () => {
+    const { scrollingElement } = document;
+    if (scrollingElement) {
+      scrollingElement.scrollTo({
+        top: scrollingElement.scrollHeight,
+        behavior: 'smooth'
+      });
     }
+  };
 
-    if (scrollContentContainerRef.current) {
-      const resizeObserver = new ResizeObserver(scrollToBottom);
-
-      resizeObserver.observe(scrollContentContainerRef.current);
-      scrollToBottom();
-
-      return () => resizeObserver.disconnect();
-    }
-  }, [scrollContentContainerRef]);
+  return { scrollToBottom };
 }
 interface ChatProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   className?: string;
 }
 
-export const ChatMessageView = ({ className, children, ...props }: ChatProps) => {
-  const scrollContentRef = useRef<HTMLDivElement>(null);
+export const ChatMessageView = React.forwardRef<{ scrollToBottom: () => void }, ChatProps>(
+  ({ className, children, ...props }, ref) => {
+    const scrollContentRef = useRef<HTMLDivElement>(null);
+    const { scrollToBottom } = useAutoScroll(scrollContentRef);
 
-  useAutoScroll(scrollContentRef);
+    // Expose scrollToBottom function to parent component
+    React.useImperativeHandle(ref, () => ({
+      scrollToBottom
+    }), [scrollToBottom]);
 
-  return (
-    <div ref={scrollContentRef} className={cn('flex flex-col justify-end', className)} {...props}>
-      {children}
-    </div>
-  );
-};
+    return (
+      <div ref={scrollContentRef} className={cn('flex flex-col justify-end', className)} {...props}>
+        {children}
+      </div>
+    );
+  }
+);
