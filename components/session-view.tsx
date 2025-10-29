@@ -91,7 +91,7 @@ export const SessionView = ({
           'translate-y-0 opacity-100'
         )}
       >
-        <div className="space-y-3 whitespace-pre-wrap">
+        <div className="space-y-3 whitespace-pre-wrap" id="chat-messages">
           <AnimatePresence>
             {messages.map((message: ReceivedChatMessage) => (
               <motion.div
@@ -151,6 +151,7 @@ export const SessionView = ({
             <Button
               className="bg-green-500 px-8 py-3 text-lg font-semibold hover:bg-green-600"
               onClick={handleViewReport}
+              id="view-report-button"
             >
               View Full Report
             </Button>

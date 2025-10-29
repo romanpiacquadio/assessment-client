@@ -51,6 +51,7 @@ export function ChatInput({
           }}
           disabled={inputIsDisabled}
           maxLength={4000}
+          id="chat-input"
         />
         <Button
           size="sm"
@@ -58,6 +59,7 @@ export function ChatInput({
           variant={isDisabled ? 'secondary' : 'primary'}
           disabled={isDisabled}
           className="font-mono"
+          id="send-chat-button"
         >
           SEND
         </Button>
