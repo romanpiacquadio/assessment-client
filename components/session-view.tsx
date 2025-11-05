@@ -37,12 +37,17 @@ export const SessionView = ({
   const [chatOpen, setChatOpen] = useState(true);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [isViewingPartialFeedback, setIsViewingPartialFeedback] = useState(false);
 
   const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded } =
     useChatAndTranscription();
   const { dimensionState, analyzingDimension } = useDimensionStateContext();
   const router = useRouter();
   const chatViewRef = useRef<{ scrollToBottom: () => void }>(null);
+
+  if (analyzingDimension && !isViewingPartialFeedback) {
+    setIsViewingPartialFeedback(true);
+  }
 
   useDebugMode();
 
@@ -114,7 +119,7 @@ export const SessionView = ({
 
           {/* Analysis Status Component */}
           <AnimatePresence>
-            {analyzingDimension && (
+            {isViewingPartialFeedback && (
               <motion.div
                 key="analysis-status"
                 initial={{ opacity: 0, height: 0 }}
@@ -122,7 +127,11 @@ export const SessionView = ({
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
               >
-                <AnalysisStatus className="mt-4" />
+                <AnalysisStatus
+                  className="mt-4"
+                  isViewingPartialFeedback={isViewingPartialFeedback}
+                  onUserClosePartialFeedback={setIsViewingPartialFeedback}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -206,6 +215,7 @@ export const SessionView = ({
                 chatOpen={chatOpen}
                 onSendMessage={handleSendMessage}
                 isVoiceMode={isVoiceMode}
+                isViewingPartialFeedback={isViewingPartialFeedback}
                 onToggleVoiceMode={handleToggleVoiceMode}
               />
             </div>
