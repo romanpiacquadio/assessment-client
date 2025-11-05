@@ -4,17 +4,43 @@ import { Brain, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
+import { RadarChart } from './radar-chart';
+import { Button } from './ui/button';
+
+const DIMENSIONS = [
+  'Evolution',
+  'Outcome',
+  'Leverage',
+  'Sponsorship',
+  'Coverage',
+  'Alignment',
+] as const;
 
 interface AnalysisStatusProps {
   className?: string;
+  isViewingPartialFeedback: boolean;
+  onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
 }
 
-export function AnalysisStatus({ className }: AnalysisStatusProps) {
-  const { analyzingDimension } = useDimensionStateContext();
+export function AnalysisStatus({ className, isViewingPartialFeedback, onUserClosePartialFeedback }: AnalysisStatusProps) {
+  const { dimensionState, isCompleted, analyzingDimension } = useDimensionStateContext();
 
-  if (!analyzingDimension) {
+  if (!isViewingPartialFeedback) {
     return null;
   }
+
+  const chartData = {
+    labels: [...DIMENSIONS],
+    datasets: [
+      {
+        label: `${analyzingDimension} Score`,
+        data: DIMENSIONS.map((dimension) => dimensionState?.[dimension]?.scoring || 0),
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 2,
+      },
+    ],
+  };
 
   return (
     <motion.div
@@ -172,6 +198,61 @@ export function AnalysisStatus({ className }: AnalysisStatusProps) {
           ease: 'linear',
         }}
       />
+
+      <div>
+        <div className="mb-8 rounded-lg border p-6">
+          <h2 className="mb-4 text-xl font-semibold">{analyzingDimension} Overview</h2>
+          <div className="flex flex-col items-center justify-center gap-8">
+            {/* Centered RadarChart */}
+            <div className="flex w-2/5 items-center justify-center">
+              <RadarChart data={chartData} />
+            </div>
+            {/* Recommendations */}
+            <div className="flex w-full flex-1 flex-col justify-center">
+              {dimensionState?.Evolution.partial_feedback.map(
+                (recommendation: String, index: number) => (
+                  <div
+                    key={index}
+                    className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
+                    style={{
+                      maxWidth: 700,
+                      minWidth: 350,
+                      marginTop: '0.2rem',
+                      marginBottom: '0.2rem',
+                      marginLeft: 'auto',
+                      marginRight: 'auto',
+                    }}
+                  >
+                    {recommendation}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-20 mt-4 flex justify-end gap-2">
+        {/* Button to continue the analysis with the next dimension */}
+        <Button
+          className="bg-green-500 text-white hover:bg-green-600"
+          onClick={() => {
+            onUserClosePartialFeedback(false);
+          }}
+        >
+          Continue with next dimension
+        </Button>
+
+        {/* Button to contact CloudX team for support */}
+        <Button
+          className="bg-orange-500 text-white hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
+          onClick={() => {
+            window.open('https://cloudx.com/contact-us', '_blank', 'noopener,noreferrer');
+          }}
+        >
+          Contact CloudX Team
+        </Button>
+      </div>
     </motion.div>
   );
 }
