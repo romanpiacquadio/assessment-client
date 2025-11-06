@@ -1,13 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { PopupButton } from 'react-calendly';
 import { Brain, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
 import { RadarChart } from './radar-chart';
 import { Button } from './ui/button';
-import { PopupButton } from 'react-calendly';
 
 const DIMENSIONS = [
   'Evolution',
@@ -248,7 +248,7 @@ export function AnalysisStatus({
       <div className="relative z-20 mt-4 flex justify-end gap-2">
         {/* Button to continue the analysis with the next dimension */}
         <Button
-          className="bg-green-500 text-white hover:bg-green-600 font:bg-green-500 active:bg-green-500 rounded-md px-4 py-2 transition-colors text-xs font-bold uppercase"
+          className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
           onClick={() => {
             onUserClosePartialFeedback(false);
           }}
@@ -266,7 +266,7 @@ export function AnalysisStatus({
              */
             rootElement={rootElement}
             text="CONTACT CLOUDX TEAM"
-            className="bg-orange-500 text-white hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500 rounded-md px-4 py-2 transition-colors text-xs font-bold uppercase"
+            className="rounded-md bg-orange-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
           />
         )}
       </div>
