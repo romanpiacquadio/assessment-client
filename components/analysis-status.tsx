@@ -2,10 +2,12 @@
 
 import { Brain, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
 import { RadarChart } from './radar-chart';
 import { Button } from './ui/button';
+import { PopupButton } from 'react-calendly';
 
 const DIMENSIONS = [
   'Evolution',
@@ -22,8 +24,19 @@ interface AnalysisStatusProps {
   onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
 }
 
-export function AnalysisStatus({ className, isViewingPartialFeedback, onUserClosePartialFeedback }: AnalysisStatusProps) {
+export function AnalysisStatus({
+  className,
+  isViewingPartialFeedback,
+  onUserClosePartialFeedback,
+}: AnalysisStatusProps) {
   const { dimensionState, isCompleted, analyzingDimension } = useDimensionStateContext();
+  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // In Next.js, there's no #root element. Use document.body as the root element for portals
+    // This ensures the Calendly popup modal is rendered correctly in the DOM
+    setRootElement(document.body);
+  }, []);
 
   if (!isViewingPartialFeedback) {
     return null;
@@ -235,23 +248,27 @@ export function AnalysisStatus({ className, isViewingPartialFeedback, onUserClos
       <div className="relative z-20 mt-4 flex justify-end gap-2">
         {/* Button to continue the analysis with the next dimension */}
         <Button
-          className="bg-green-500 text-white hover:bg-green-600"
+          className="bg-green-500 text-white hover:bg-green-600 font:bg-green-500 active:bg-green-500 rounded-md px-4 py-2 transition-colors text-xs font-bold uppercase"
           onClick={() => {
             onUserClosePartialFeedback(false);
           }}
         >
-          Continue with next dimension
+          CONTINUE WITH NEXT DIMENSION
         </Button>
 
         {/* Button to contact CloudX team for support */}
-        <Button
-          className="bg-orange-500 text-white hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
-          onClick={() => {
-            window.open('https://cloudx.com/contact-us', '_blank', 'noopener,noreferrer');
-          }}
-        >
-          Contact CloudX Team
-        </Button>
+        {rootElement && (
+          <PopupButton
+            url={process.env.CALENDLY_URL ?? ''}
+            /*
+             * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
+             * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
+             */
+            rootElement={rootElement}
+            text="CONTACT CLOUDX TEAM"
+            className="bg-orange-500 text-white hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500 rounded-md px-4 py-2 transition-colors text-xs font-bold uppercase"
+          />
+        )}
       </div>
     </motion.div>
   );
