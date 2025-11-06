@@ -259,7 +259,7 @@ export function AnalysisStatus({
         {/* Button to contact CloudX team for support */}
         {rootElement && (
           <PopupButton
-            url={process.env.CALENDLY_URL ?? ''}
+            url={process.env.NEXT_PUBLIC_CALENDLY_URL ?? ''}
             /*
              * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
              * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
