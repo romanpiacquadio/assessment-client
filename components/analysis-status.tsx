@@ -21,12 +21,16 @@ const DIMENSIONS = [
 interface AnalysisStatusProps {
   className?: string;
   isViewingPartialFeedback: boolean;
+  partialFeedbackDimension: string | null;
+  setPartialFeedbackDimension: (dimension: string | null) => void;
   onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
 }
 
 export function AnalysisStatus({
   className,
   isViewingPartialFeedback,
+  partialFeedbackDimension,
+  setPartialFeedbackDimension,
   onUserClosePartialFeedback,
 }: AnalysisStatusProps) {
   const { dimensionState, isCompleted, analyzingDimension } = useDimensionStateContext();
@@ -46,7 +50,7 @@ export function AnalysisStatus({
     labels: [...DIMENSIONS],
     datasets: [
       {
-        label: `${analyzingDimension} Score`,
+        label: `${partialFeedbackDimension} Score`,
         data: DIMENSIONS.map((dimension) => dimensionState?.[dimension]?.scoring || 0),
         backgroundColor: 'rgba(99, 102, 241, 0.2)',
         borderColor: 'rgba(99, 102, 241, 1)',
@@ -169,35 +173,46 @@ export function AnalysisStatus({
             <Sparkles className="h-4 w-4 text-yellow-500" />
           </div>
 
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Processing responses for{' '}
-            <span className="font-medium text-blue-900 dark:text-blue-100">
-              {analyzingDimension}
-            </span>
-          </p>
+          {analyzingDimension ? (
+            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+              Processing responses for{' '}
+              <span className="font-medium text-blue-900 dark:text-blue-100">
+                {analyzingDimension}
+              </span>
+            </p>
+          ) : (
+            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+              Process completed for{' '}
+              <span className="font-medium text-blue-900 dark:text-blue-100">
+                {partialFeedbackDimension}
+              </span>
+            </p>
+          )}
 
           {/* Progress indicator */}
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <motion.div
-                  key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-blue-400"
-                  animate={{
-                    scale: [0.8, 1.2, 0.8],
-                    opacity: [0.4, 1, 0.4],
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: i * 0.15,
-                  }}
-                />
-              ))}
+          {analyzingDimension && (
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex gap-1">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-blue-400"
+                    animate={{
+                      scale: [0.8, 1.2, 0.8],
+                      opacity: [0.4, 1, 0.4],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: i * 0.15,
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-blue-600 dark:text-blue-400">Processing...</span>
             </div>
-            <span className="text-xs text-blue-600 dark:text-blue-400">Processing...</span>
-          </div>
+          )}
         </div>
       </div>
 
@@ -214,7 +229,7 @@ export function AnalysisStatus({
 
       <div>
         <div className="mb-8 rounded-lg border p-6">
-          <h2 className="mb-4 text-xl font-semibold">{analyzingDimension} Overview</h2>
+          <h2 className="mb-4 text-xl font-semibold">{partialFeedbackDimension} Overview</h2>
           <div className="flex flex-col items-center justify-center gap-8">
             {/* Centered RadarChart */}
             <div className="flex w-2/5 items-center justify-center">
@@ -222,7 +237,7 @@ export function AnalysisStatus({
             </div>
             {/* Recommendations */}
             <div className="flex w-full flex-1 flex-col justify-center">
-              {dimensionState?.Evolution.partial_feedback.map(
+              {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
                 (recommendation: String, index: number) => (
                   <div
                     key={index}
@@ -251,6 +266,7 @@ export function AnalysisStatus({
           className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
           onClick={() => {
             onUserClosePartialFeedback(false);
+            setPartialFeedbackDimension(null);
           }}
         >
           CONTINUE WITH NEXT DIMENSION
