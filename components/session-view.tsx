@@ -26,12 +26,14 @@ interface SessionViewProps {
     supportsScreenShare: boolean;
   };
   sessionStarted: boolean;
+  onSessionFinished: (visible: boolean) => void;
 }
 
 export const SessionView = ({
   disabled,
   capabilities,
   sessionStarted,
+  onSessionFinished,
   ref,
 }: React.ComponentProps<'div'> & SessionViewProps) => {
   const [chatOpen, setChatOpen] = useState(true);
@@ -223,6 +225,7 @@ export const SessionView = ({
                 isVoiceMode={isVoiceMode}
                 isViewingPartialFeedback={isViewingPartialFeedback}
                 onToggleVoiceMode={handleToggleVoiceMode}
+                onDisconnect={() => onSessionFinished(false)}
               />
             </div>
             {/* Gradient removed to prevent text fading at bottom */}

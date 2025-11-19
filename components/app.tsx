@@ -21,6 +21,7 @@ interface AppProps {
 
 export function App({ appConfig }: AppProps) {
   const [sessionStarted, setSessionStarted] = React.useState(false);
+  const [sessionViewVisible, setSessionViewVisible] = React.useState(false);
   const { supportsChatInput, supportsVideoInput, supportsScreenShare, startButtonText } = appConfig;
 
   const capabilities = {
@@ -71,16 +72,23 @@ export function App({ appConfig }: AppProps) {
     };
   }, [room, sessionStarted, connectionDetails]);
 
+  const onStartCall = () => {
+    setSessionStarted(true);
+    setSessionViewVisible(true);
+  };
+
+  const isWelcomeDisabled = sessionViewVisible || sessionStarted;
+
   return (
     <>
       <MotionWelcome
         key="welcome"
         startButtonText={startButtonText}
-        onStartCall={() => setSessionStarted(true)}
-        disabled={sessionStarted}
+        onStartCall={onStartCall}
+        disabled={isWelcomeDisabled}
         initial={{ opacity: 0 }}
-        animate={{ opacity: sessionStarted ? 0 : 1 }}
-        transition={{ duration: 0.5, ease: 'linear', delay: sessionStarted ? 0 : 0.5 }}
+        animate={{ opacity: isWelcomeDisabled ? 0 : 1 }}
+        transition={{ duration: 0.5, ease: 'linear', delay: isWelcomeDisabled ? 0 : 0.5 }}
       />
 
       <RoomContext.Provider value={room}>
@@ -92,13 +100,14 @@ export function App({ appConfig }: AppProps) {
             key={room.name || 'default'}
             capabilities={capabilities}
             sessionStarted={sessionStarted}
-            disabled={!sessionStarted}
+            onSessionFinished={setSessionViewVisible}
+            disabled={!sessionViewVisible}
             initial={{ opacity: 0 }}
-            animate={{ opacity: sessionStarted ? 1 : 0 }}
+            animate={{ opacity: sessionViewVisible ? 1 : 0 }}
             transition={{
               duration: 0.5,
               ease: 'linear',
-              delay: sessionStarted ? 0.5 : 0,
+              delay: sessionViewVisible ? 0.5 : 0,
             }}
           />
         </DimensionStateProvider>
