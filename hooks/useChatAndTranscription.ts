@@ -18,6 +18,7 @@ export default function useChatAndTranscription() {
   const room = useRoomContext();
 
   const [historicalMessages, setHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
+  const [localHistoricalMessages, setLocalHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
   useEffect(() => {
@@ -58,6 +59,15 @@ export default function useChatAndTranscription() {
     ];
     return merged.sort((a, b) => a.timestamp - b.timestamp);
   }, [historicalMessages, transcriptions, chat.chatMessages, room]);
+
+  // Keep messages in local even when the room is disconnected
+  const localMergedMessages = useMemo(() => {
+    if (mergedMessages.length >= localHistoricalMessages.length) {
+      setLocalHistoricalMessages(mergedMessages);
+      return mergedMessages;
+    }
+    return localHistoricalMessages;
+  }, [mergedMessages]);
 
   const getAgentIdentity = useCallback(() => {
     if (!room) return null;
@@ -125,5 +135,6 @@ export default function useChatAndTranscription() {
     sendToggleOutput,
     sendToggleInput,
     isHistoryLoaded,
+    localMessages: localMergedMessages,
   };
 }
