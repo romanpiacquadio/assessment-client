@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
@@ -44,7 +44,7 @@ export const SessionView = ({
   const [isViewingPartialFeedback, setIsViewingPartialFeedback] = useState(false);
   const [partialFeedbackDimension, setPartialFeedbackDimension] = useState<string | null>(null);
 
-  const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded } =
+  const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded, localMessages } =
     useChatAndTranscription();
   const { dimensionState, analyzingDimension } = useDimensionStateContext();
   const router = useRouter();
@@ -104,7 +104,7 @@ export const SessionView = ({
       >
         <div className="space-y-3 whitespace-pre-wrap" id="chat-messages">
           <AnimatePresence>
-            {messages.map((message: ReceivedChatMessage) => (
+            {(assessmentCompleted ? localMessages : messages).map((message: ReceivedChatMessage) => (
               <motion.div
                 key={message.id}
                 initial={{ opacity: 0, height: 0 }}
@@ -156,29 +156,32 @@ export const SessionView = ({
             />
           )}
         </div>
-
-        {/* Show "View Full Report" button when assessment is completed */}
-        {assessmentCompleted && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="mt-8 flex justify-center"
-          >
-            <Button
-              className="bg-green-500 px-8 py-3 text-lg font-semibold hover:bg-green-600"
-              onClick={handleViewReport}
-              id="view-report-button"
-            >
-              View Full Report
-            </Button>
-          </motion.div>
-        )}
       </ChatMessageView>
 
       <div className="bg-background mp-12 fixed top-0 right-0 left-0 h-32 md:h-36">
         {/* Gradient removed to prevent text fading */}
       </div>
+
+      {/* Show "View Full Report" button when assessment is completed */}
+      {assessmentCompleted && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="pointer-events-none fixed bottom-20 z-50 flex w-full justify-center"
+        >
+          <div className="pointer-events-auto">
+            <Button
+              className="bg-green-500 px-8 py-3 text-lg font-semibold shadow-lg hover:bg-green-600"
+              onClick={handleViewReport}
+              id="view-report-button"
+            >
+              View Full Report
+            </Button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Only show control bar if assessment is not completed */}
       {!assessmentCompleted && (

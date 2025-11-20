@@ -97,7 +97,7 @@ export function App({ appConfig }: AppProps) {
           <StartAudio label="Start Audio" />
           {/* --- */}
           <MotionSessionView
-            key={room.name || 'default'}
+            key={'default-session-view'}
             capabilities={capabilities}
             sessionStarted={sessionStarted}
             onSessionFinished={setSessionViewVisible}
