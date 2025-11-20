@@ -241,7 +241,12 @@ export function AgentControlBar({
           )}
         </div>
         {visibleControls.leave && (
-          <Button variant="destructive" onClick={onLeave} className="font-mono" id="end-assesment-button">
+          <Button
+            variant="destructive"
+            onClick={onLeave}
+            className="font-mono"
+            id="end-assesment-button"
+          >
             <PhoneDisconnectIcon weight="bold" />
             <span className="hidden md:inline">END ASSESSMENT</span>
             <span className="inline md:hidden">END</span>

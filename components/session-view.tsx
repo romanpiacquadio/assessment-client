@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
@@ -104,23 +104,25 @@ export const SessionView = ({
       >
         <div className="space-y-3 whitespace-pre-wrap" id="chat-messages">
           <AnimatePresence>
-            {(assessmentCompleted ? localMessages : messages).map((message: ReceivedChatMessage) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 1, height: 'auto', translateY: 0.001 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              >
-                <ChatEntry
-                  hideName
-                  entry={message}
-                  messageFormatter={(text: string) => (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
-                  )}
-                />
-              </motion.div>
-            ))}
+            {(assessmentCompleted ? localMessages : messages).map(
+              (message: ReceivedChatMessage) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 1, height: 'auto', translateY: 0.001 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                >
+                  <ChatEntry
+                    hideName
+                    entry={message}
+                    messageFormatter={(text: string) => (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+                    )}
+                  />
+                </motion.div>
+              )
+            )}
           </AnimatePresence>
 
           {/* Analysis Status Component */}

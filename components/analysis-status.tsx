@@ -33,7 +33,7 @@ export function AnalysisStatus({
   setPartialFeedbackDimension,
   onUserClosePartialFeedback,
 }: AnalysisStatusProps) {
-  const { dimensionState, isCompleted, analyzingDimension } = useDimensionStateContext();
+  const { dimensionState, analyzingDimension } = useDimensionStateContext();
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -174,14 +174,14 @@ export function AnalysisStatus({
           </div>
 
           {analyzingDimension ? (
-            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
               Processing responses for{' '}
               <span className="font-medium text-blue-900 dark:text-blue-100">
                 {analyzingDimension}
               </span>
             </p>
           ) : (
-            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
               Process completed for{' '}
               <span className="font-medium text-blue-900 dark:text-blue-100">
                 {partialFeedbackDimension}
@@ -191,7 +191,7 @@ export function AnalysisStatus({
 
           {/* Progress indicator */}
           {analyzingDimension && (
-            <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2 flex items-center gap-2">
               <div className="flex gap-1">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <motion.div
@@ -238,7 +238,7 @@ export function AnalysisStatus({
             {/* Recommendations */}
             <div className="flex w-full flex-1 flex-col justify-center">
               {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
-                (recommendation: String, index: number) => (
+                (recommendation: string, index: number) => (
                   <div
                     key={index}
                     className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
