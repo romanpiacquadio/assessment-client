@@ -94,6 +94,7 @@ export const Welcome = ({
             size="lg"
             onClick={handleResumeAssessment}
             className="w-64 font-mono"
+            id="resume-assessment-button"
           >
             RESUME ASSESSMENT
           </Button>
@@ -103,6 +104,7 @@ export const Welcome = ({
             onClick={handleStartNewAssessment}
             disabled={isClearing}
             className="w-64 font-mono"
+            id="start-new-assessment-button"
           >
             {isClearing ? 'CLEARING...' : 'START NEW ASSESSMENT'}
           </Button>

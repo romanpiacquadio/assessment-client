@@ -1,20 +1,63 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { PopupButton } from 'react-calendly';
 import { Brain, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
+import { RadarChart } from './radar-chart';
+import { Button } from './ui/button';
+
+const DIMENSIONS = [
+  'Evolution',
+  'Outcome',
+  'Leverage',
+  'Sponsorship',
+  'Coverage',
+  'Alignment',
+] as const;
 
 interface AnalysisStatusProps {
   className?: string;
+  isViewingPartialFeedback: boolean;
+  partialFeedbackDimension: string | null;
+  setPartialFeedbackDimension: (dimension: string | null) => void;
+  onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
 }
 
-export function AnalysisStatus({ className }: AnalysisStatusProps) {
-  const { analyzingDimension } = useDimensionStateContext();
+export function AnalysisStatus({
+  className,
+  isViewingPartialFeedback,
+  partialFeedbackDimension,
+  setPartialFeedbackDimension,
+  onUserClosePartialFeedback,
+}: AnalysisStatusProps) {
+  const { dimensionState, analyzingDimension } = useDimensionStateContext();
+  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
-  if (!analyzingDimension) {
+  useEffect(() => {
+    // In Next.js, there's no #root element. Use document.body as the root element for portals
+    // This ensures the Calendly popup modal is rendered correctly in the DOM
+    setRootElement(document.body);
+  }, []);
+
+  if (!isViewingPartialFeedback) {
     return null;
   }
+
+  const chartData = {
+    labels: [...DIMENSIONS],
+    datasets: [
+      {
+        label: `${partialFeedbackDimension} Score`,
+        data: DIMENSIONS.map((dimension) => dimensionState?.[dimension]?.scoring || 0),
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 2,
+      },
+    ],
+  };
 
   return (
     <motion.div
@@ -130,35 +173,46 @@ export function AnalysisStatus({ className }: AnalysisStatusProps) {
             <Sparkles className="h-4 w-4 text-yellow-500" />
           </div>
 
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Processing responses for{' '}
-            <span className="font-medium text-blue-900 dark:text-blue-100">
-              {analyzingDimension}
-            </span>
-          </p>
+          {analyzingDimension ? (
+            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
+              Processing responses for{' '}
+              <span className="font-medium text-blue-900 dark:text-blue-100">
+                {analyzingDimension}
+              </span>
+            </p>
+          ) : (
+            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
+              Process completed for{' '}
+              <span className="font-medium text-blue-900 dark:text-blue-100">
+                {partialFeedbackDimension}
+              </span>
+            </p>
+          )}
 
           {/* Progress indicator */}
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <motion.div
-                  key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-blue-400"
-                  animate={{
-                    scale: [0.8, 1.2, 0.8],
-                    opacity: [0.4, 1, 0.4],
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: i * 0.15,
-                  }}
-                />
-              ))}
+          {analyzingDimension && (
+            <div className="mb-2 flex items-center gap-2">
+              <div className="flex gap-1">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-blue-400"
+                    animate={{
+                      scale: [0.8, 1.2, 0.8],
+                      opacity: [0.4, 1, 0.4],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: i * 0.15,
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-blue-600 dark:text-blue-400">Processing...</span>
             </div>
-            <span className="text-xs text-blue-600 dark:text-blue-400">Processing...</span>
-          </div>
+          )}
         </div>
       </div>
 
@@ -172,6 +226,66 @@ export function AnalysisStatus({ className }: AnalysisStatusProps) {
           ease: 'linear',
         }}
       />
+
+      <div>
+        <div className="mb-8 rounded-lg border p-6">
+          <h2 className="mb-4 text-xl font-semibold">{partialFeedbackDimension} Overview</h2>
+          <div className="flex flex-col items-center justify-center gap-8">
+            {/* Centered RadarChart */}
+            <div className="flex w-2/5 items-center justify-center">
+              <RadarChart data={chartData} />
+            </div>
+            {/* Recommendations */}
+            <div className="flex w-full flex-1 flex-col justify-center">
+              {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
+                (recommendation: string, index: number) => (
+                  <div
+                    key={index}
+                    className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
+                    style={{
+                      maxWidth: 700,
+                      minWidth: 350,
+                      marginTop: '0.2rem',
+                      marginBottom: '0.2rem',
+                      marginLeft: 'auto',
+                      marginRight: 'auto',
+                    }}
+                  >
+                    {recommendation}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-20 mt-4 flex justify-end gap-2">
+        {/* Button to continue the analysis with the next dimension */}
+        <Button
+          className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
+          onClick={() => {
+            onUserClosePartialFeedback(false);
+            setPartialFeedbackDimension(null);
+          }}
+        >
+          CONTINUE WITH NEXT DIMENSION
+        </Button>
+
+        {/* Button to contact CloudX team for support */}
+        {rootElement && (
+          <PopupButton
+            url={process.env.NEXT_PUBLIC_CALENDLY_URL ?? ''}
+            /*
+             * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
+             * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
+             */
+            rootElement={rootElement}
+            text="CONTACT CLOUDX TEAM"
+            className="rounded-md bg-orange-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
+          />
+        )}
+      </div>
     </motion.div>
   );
 }

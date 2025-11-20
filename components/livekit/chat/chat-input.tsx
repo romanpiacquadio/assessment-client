@@ -9,6 +9,7 @@ interface ChatInputProps extends React.HTMLAttributes<HTMLFormElement> {
   // When true, the text input itself will be disabled when `disabled` is true.
   // Defaults to true to preserve previous behavior.
   disableInput?: boolean;
+  isViewingPartialFeedback?: boolean;
 }
 
 export function ChatInput({
@@ -16,6 +17,7 @@ export function ChatInput({
   className,
   disabled,
   disableInput = true,
+  isViewingPartialFeedback,
   ...props
 }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,7 +32,7 @@ export function ChatInput({
   };
 
   const isDisabled = disabled || message.trim().length === 0;
-  const inputIsDisabled = !!disabled && disableInput;
+  const inputIsDisabled = (!!disabled && disableInput) || isViewingPartialFeedback;
 
   return (
     <form
@@ -51,6 +53,7 @@ export function ChatInput({
           }}
           disabled={inputIsDisabled}
           maxLength={4000}
+          id="chat-input"
         />
         <Button
           size="sm"
@@ -58,6 +61,7 @@ export function ChatInput({
           variant={isDisabled ? 'secondary' : 'primary'}
           disabled={isDisabled}
           className="font-mono"
+          id="send-chat-button"
         >
           SEND
         </Button>

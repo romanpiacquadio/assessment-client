@@ -48,7 +48,7 @@ export const ChatEntry = ({
       )}
 
       <div className={cn('max-w-4/5 rounded-[20px] p-3', isUser ? 'bg-muted ml-auto' : 'mr-auto')}>
-        {message}
+        <div className="individual-message">{message}</div>
       </div>
     </li>
   );
