@@ -32,11 +32,7 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
         isAudioMode ? 'top-16' : 'top-4'
       )}
     >
-      <div
-        className="bg-background/30 border-border
-        rounded-lg border shadow-lg backdrop-blur-sm
-        min-w-[240px] px-3 py-2"
-      >
+      <div className="bg-background/30 border-border min-w-[240px] rounded-lg border px-3 py-2 shadow-lg backdrop-blur-sm">
         {/* Current dimension info */}
         <div className="mb-2 flex items-center gap-2">
           {isCompleted ? (

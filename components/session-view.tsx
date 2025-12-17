@@ -56,7 +56,7 @@ export const SessionView = ({
   }
 
   useDebugMode();
-  
+
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
 
