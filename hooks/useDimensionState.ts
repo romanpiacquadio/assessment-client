@@ -4,7 +4,11 @@ import { AgentStateData, AnalysisNotification, DimensionState } from '@/lib/type
 
 const STORAGE_KEY = 'maturity-model-state';
 
+const isBrowser = typeof window !== 'undefined';
+
 const loadStateFromStorage = (): DimensionState | null => {
+  if (!isBrowser) return null;
+
   try {
     const savedState = localStorage.getItem(STORAGE_KEY);
     return savedState ? JSON.parse(savedState) : null;
@@ -15,6 +19,8 @@ const loadStateFromStorage = (): DimensionState | null => {
 };
 
 const saveStateToStorage = (state: DimensionState): void => {
+  if (!isBrowser) return;
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (error) {
@@ -74,6 +80,15 @@ export function useDimensionState() {
         analysisTimeoutRef.current = null;
       }
       setAnalyzingDimension(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isBrowser) {
+      const savedState = loadStateFromStorage();
+      if (savedState) {
+        setDimensionState(savedState);
+      }
     }
   }, []);
 

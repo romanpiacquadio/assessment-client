@@ -56,7 +56,7 @@ export const SessionView = ({
   }
 
   useDebugMode();
-
+  
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
 
@@ -154,15 +154,11 @@ export const SessionView = ({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="min-h-[500px]"
+              className="min-h-[300px]"
             />
           )}
         </div>
       </ChatMessageView>
-
-      <div className="bg-background mp-12 fixed top-0 right-0 left-0 h-32 md:h-36">
-        {/* Gradient removed to prevent text fading */}
-      </div>
 
       {/* Show "View Full Report" button when assessment is completed */}
       {assessmentCompleted && (
@@ -187,7 +183,7 @@ export const SessionView = ({
 
       {/* Only show control bar if assessment is not completed */}
       {!assessmentCompleted && (
-        <div className="bg-background fixed right-0 bottom-0 left-0 z-50 px-3 pt-2 pb-3 md:px-12 md:pb-12">
+        <div className="bg-background fixed right-0 bottom-0 left-0 z-50 px-3 pt-2 pb-3 md:px-12 md:pb-3">
           <motion.div
             key="control-bar"
             initial={{ opacity: 0, translateY: '100%' }}

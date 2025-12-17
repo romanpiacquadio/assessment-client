@@ -56,9 +56,6 @@ export function App({ appConfig }: AppProps) {
   React.useEffect(() => {
     if (sessionStarted && room.state === 'disconnected' && connectionDetails) {
       Promise.all([
-        room.localParticipant.setMicrophoneEnabled(true, undefined, {
-          preConnectBuffer: true,
-        }),
         room.connect(connectionDetails.serverUrl, connectionDetails.participantToken),
       ]).catch((error) => {
         toastAlert({
@@ -95,7 +92,6 @@ export function App({ appConfig }: AppProps) {
         <DimensionStateProvider>
           <RoomAudioRenderer />
           <StartAudio label="Start Audio" />
-          {/* --- */}
           <MotionSessionView
             key={'default-session-view'}
             capabilities={capabilities}
