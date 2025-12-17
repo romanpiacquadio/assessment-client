@@ -32,12 +32,7 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
         isAudioMode ? 'top-16' : 'top-4'
       )}
     >
-      <div
-        className={cn(
-          'bg-background/90 border-border rounded-lg border shadow-lg backdrop-blur-sm',
-          isAudioMode ? 'min-w-[280px] px-3 py-2' : 'min-w-[320px] px-4 py-3'
-        )}
-      >
+      <div className="bg-background/30 border-border min-w-[240px] rounded-lg border px-3 py-2 shadow-lg backdrop-blur-sm">
         {/* Current dimension info */}
         <div className="mb-2 flex items-center gap-2">
           {isCompleted ? (
@@ -45,7 +40,7 @@ export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps)
           ) : (
             <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
           )}
-          <span className="foreground text-sm font-medium">
+          <span className="foreground text-xs font-medium">
             {isCompleted ? (
               <span className="font-semibold text-green-500">COMPLETED</span>
             ) : (
