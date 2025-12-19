@@ -8,6 +8,7 @@ interface DimensionStateContextType {
   isCompleted: boolean;
   analyzingDimension: string | null;
   reset: () => void;
+  isHydrated: boolean;
 }
 
 const DimensionStateContext = createContext<DimensionStateContextType | null>(null);

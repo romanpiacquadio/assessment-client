@@ -12,9 +12,9 @@ interface DimensionDisplayProps {
 }
 
 export function DimensionDisplay({ isAudioMode = false }: DimensionDisplayProps) {
-  const { dimensionState } = useDimensionStateContext();
+  const { dimensionState, isHydrated } = useDimensionStateContext();
 
-  if (!dimensionState) {
+  if (!isHydrated || !dimensionState) {
     return null;
   }
 

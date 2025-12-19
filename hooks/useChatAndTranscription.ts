@@ -21,6 +21,22 @@ export default function useChatAndTranscription() {
   const [localHistoricalMessages, setLocalHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
 
+  // Reset state when room disconnects
+  useEffect(() => {
+    if (!room) return;
+
+    const handleDisconnected = () => {
+      setIsHistoryLoaded(false);
+      setHistoricalMessages([]);
+    };
+
+    room.on('disconnected', handleDisconnected);
+
+    return () => {
+      room.off('disconnected', handleDisconnected);
+    };
+  }, [room]);
+
   useEffect(() => {
     if (!room || isHistoryLoaded) return;
 
@@ -47,7 +63,11 @@ export default function useChatAndTranscription() {
     room.registerTextStreamHandler('chat-history-backfill', handleHistoryBackfill);
 
     return () => {
-      room.unregisterTextStreamHandler('chat-history-backfill');
+      try {
+        room.unregisterTextStreamHandler('chat-history-backfill');
+      } catch (error) {
+        console.log(error);
+      }
     };
   }, [room, isHistoryLoaded]);
 

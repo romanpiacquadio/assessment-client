@@ -30,6 +30,7 @@ const saveStateToStorage = (state: DimensionState): void => {
 
 export function useDimensionState() {
   const [dimensionState, setDimensionState] = useState<DimensionState | null>(loadStateFromStorage);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [analyzingDimension, setAnalyzingDimension] = useState<string | null>(null);
   const room = useRoomContext();
@@ -89,6 +90,7 @@ export function useDimensionState() {
       if (savedState) {
         setDimensionState(savedState);
       }
+      setIsHydrated(true);
     }
   }, []);
 
@@ -99,9 +101,11 @@ export function useDimensionState() {
   }, [dimensionState]);
 
   useEffect(() => {
-    if (!room || handlerRegistered.current) return;
+    if (!room) return;
 
-    const registerHandler = () => {
+    const registerHandlers = () => {
+      if (handlerRegistered.current) return;
+
       try {
         room.registerTextStreamHandler('agent-state-update', async (reader, participantInfo) => {
           try {
@@ -113,7 +117,6 @@ export function useDimensionState() {
           }
         });
 
-        // New handler for analysis notifications
         room.registerTextStreamHandler('agent-analysis-notification', async (reader) => {
           try {
             const text = await reader.readAll();
@@ -132,19 +135,31 @@ export function useDimensionState() {
       }
     };
 
-    if (room.state === 'connected') {
-      registerHandler();
-    } else {
-      const handleConnected = () => registerHandler();
-      room.on('connected', handleConnected);
+    const unregisterHandlers = () => {
+      try {
+        room.unregisterTextStreamHandler('agent-state-update');
+        room.unregisterTextStreamHandler('agent-analysis-notification');
+      } catch (error) {
+        console.error(error);
+      }
+      handlerRegistered.current = false;
+    };
 
-      return () => {
-        room.off('connected', handleConnected);
-      };
+    // Register when connected
+    if (room.state === 'connected') {
+      registerHandlers();
     }
 
+    const handleConnected = () => registerHandlers();
+    const handleDisconnected = () => unregisterHandlers();
+
+    room.on('connected', handleConnected);
+    room.on('disconnected', handleDisconnected);
+
     return () => {
-      handlerRegistered.current = false;
+      room.off('connected', handleConnected);
+      room.off('disconnected', handleDisconnected);
+      unregisterHandlers();
     };
   }, [room, processAgentData, processAnalysisNotification]);
 
@@ -157,5 +172,5 @@ export function useDimensionState() {
     };
   }, []);
 
-  return { dimensionState, isCompleted, analyzingDimension, reset };
+  return { dimensionState, isCompleted, analyzingDimension, reset, isHydrated };
 }
