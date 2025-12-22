@@ -26,7 +26,7 @@ interface SessionViewProps {
     supportsScreenShare: boolean;
   };
   sessionStarted: boolean;
-  onSessionFinished: (visible: boolean) => void;
+  onSessionFinished: () => void;
 }
 
 export const SessionView = ({
@@ -226,7 +226,7 @@ export const SessionView = ({
                 isVoiceMode={isVoiceMode}
                 isViewingPartialFeedback={isViewingPartialFeedback}
                 onToggleVoiceMode={handleToggleVoiceMode}
-                onDisconnect={() => onSessionFinished(false)}
+                onDisconnect={() => onSessionFinished()}
               />
             </div>
             {/* Gradient removed to prevent text fading at bottom */}
