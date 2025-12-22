@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PopupButton } from 'react-calendly';
-import { Brain, Sparkles } from 'lucide-react';
+import { FileChartColumnIncreasing, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
@@ -105,53 +105,14 @@ export function AnalysisStatus({
         <div className="relative">
           <motion.div
             className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg"
-            animate={{
-              rotate: [0, 360],
-            }}
             transition={{
               duration: 8,
               repeat: Infinity,
               ease: 'linear',
             }}
           >
-            <Brain className="h-6 w-6" />
+            <FileChartColumnIncreasing className="h-6 w-6" />
           </motion.div>
-
-          {/* Orbiting sparkles */}
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              className="absolute inset-0 flex items-center justify-center"
-              animate={{
-                rotate: [0, 360],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: i * 0.5,
-              }}
-            >
-              <motion.div
-                className="absolute h-2 w-2 rounded-full bg-yellow-400"
-                style={{
-                  top: '-8px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                }}
-                animate={{
-                  scale: [0.5, 1, 0.5],
-                  opacity: [0.3, 1, 0.3],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: i * 0.3,
-                }}
-              />
-            </motion.div>
-          ))}
         </div>
 
         {/* Text content */}
@@ -168,65 +129,21 @@ export function AnalysisStatus({
                 ease: 'easeInOut',
               }}
             >
-              Analyzing Dimension
+              Analyzed Dimension: {partialFeedbackDimension}
             </motion.h3>
             <Sparkles className="h-4 w-4 text-yellow-500" />
           </div>
 
-          {analyzingDimension ? (
-            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
-              Processing responses for{' '}
-              <span className="font-medium text-blue-900 dark:text-blue-100">
-                {analyzingDimension}
-              </span>
-            </p>
-          ) : (
-            <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
-              Process completed for{' '}
-              <span className="font-medium text-blue-900 dark:text-blue-100">
-                {partialFeedbackDimension}
-              </span>
-            </p>
-          )}
-
-          {/* Progress indicator */}
-          {analyzingDimension && (
-            <div className="mb-2 flex items-center gap-2">
-              <div className="flex gap-1">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="h-1.5 w-1.5 rounded-full bg-blue-400"
-                    animate={{
-                      scale: [0.8, 1.2, 0.8],
-                      opacity: [0.4, 1, 0.4],
-                    }}
-                    transition={{
-                      duration: 1.2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                      delay: i * 0.15,
-                    }}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-blue-600 dark:text-blue-400">Processing...</span>
-            </div>
-          )}
+          <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
+            Process completed and partial feedback generated for:{' '}
+            <span className="font-medium text-blue-900 dark:text-blue-100">
+              {partialFeedbackDimension}
+            </span>
+          </p>
         </div>
       </div>
 
-      {/* Bottom border animation */}
-      <motion.div
-        className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"
-        initial={{ width: 0 }}
-        animate={{ width: '100%' }}
-        transition={{
-          duration: 15,
-          ease: 'linear',
-        }}
-      />
-
+      {/* Partial feedback overview */}
       <div>
         <div className="mb-8 rounded-lg border p-6">
           <h2 className="mb-4 text-xl font-semibold">{partialFeedbackDimension} Overview</h2>
@@ -236,6 +153,9 @@ export function AnalysisStatus({
               <RadarChart data={chartData} />
             </div>
             {/* Recommendations */}
+            <h2 className="text-l mb-4 font-semibold text-blue-900 dark:text-blue-100">
+              Action Points for: {partialFeedbackDimension}
+            </h2>
             <div className="flex w-full flex-1 flex-col justify-center">
               {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
                 (recommendation: string, index: number) => (
