@@ -22,6 +22,7 @@ interface AppProps {
 export function App({ appConfig }: AppProps) {
   const [sessionStarted, setSessionStarted] = React.useState(false);
   const [sessionViewVisible, setSessionViewVisible] = React.useState(false);
+  const [shouldMountRoomComponent, setShouldMountRoomComponent] = React.useState(false);
   const { supportsChatInput, supportsVideoInput, supportsScreenShare, startButtonText } = appConfig;
 
   const capabilities = {
@@ -35,10 +36,7 @@ export function App({ appConfig }: AppProps) {
   const room = React.useMemo(() => new Room(), []);
 
   React.useEffect(() => {
-    const onDisconnected = () => {
-      setSessionStarted(false);
-      refreshConnectionDetails();
-    };
+    const onDisconnected = () => {};
     const onMediaDevicesError = (error: Error) => {
       toastAlert({
         title: 'Encountered an error with your media devices',
@@ -72,6 +70,14 @@ export function App({ appConfig }: AppProps) {
   const onStartCall = () => {
     setSessionStarted(true);
     setSessionViewVisible(true);
+    setShouldMountRoomComponent(true);
+  };
+
+  const onSessionFinished = () => {
+    setSessionViewVisible(false);
+    setSessionStarted(false);
+    setShouldMountRoomComponent(false);
+    refreshConnectionDetails();
   };
 
   const isWelcomeDisabled = sessionViewVisible || sessionStarted;
@@ -88,26 +94,29 @@ export function App({ appConfig }: AppProps) {
         transition={{ duration: 0.5, ease: 'linear', delay: isWelcomeDisabled ? 0 : 0.5 }}
       />
 
-      <RoomContext.Provider value={room}>
-        <DimensionStateProvider>
-          <RoomAudioRenderer />
-          <StartAudio label="Start Audio" />
-          <MotionSessionView
-            key={'default-session-view'}
-            capabilities={capabilities}
-            sessionStarted={sessionStarted}
-            onSessionFinished={setSessionViewVisible}
-            disabled={!sessionViewVisible}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: sessionViewVisible ? 1 : 0 }}
-            transition={{
-              duration: 0.5,
-              ease: 'linear',
-              delay: sessionViewVisible ? 0.5 : 0,
-            }}
-          />
-        </DimensionStateProvider>
-      </RoomContext.Provider>
+      {shouldMountRoomComponent && (
+        <RoomContext.Provider value={room}>
+          <DimensionStateProvider>
+            <RoomAudioRenderer />
+            <StartAudio label="Start Audio" />
+            {/* --- */}
+            <MotionSessionView
+              key={room.name || 'default'}
+              capabilities={capabilities}
+              sessionStarted={sessionStarted}
+              onSessionFinished={onSessionFinished}
+              disabled={!sessionViewVisible}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: sessionViewVisible ? 1 : 0 }}
+              transition={{
+                duration: 0.5,
+                ease: 'linear',
+                delay: sessionViewVisible ? 0.5 : 0,
+              }}
+            />
+          </DimensionStateProvider>
+        </RoomContext.Provider>
+      )}
 
       <Toaster />
     </>
