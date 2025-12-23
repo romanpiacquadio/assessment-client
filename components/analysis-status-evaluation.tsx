@@ -7,10 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface AnalysisStatusEvaluationProps {
   className?: string;
-  isViewingPartialFeedback: boolean;
   partialFeedbackDimension: string | null;
-  setPartialFeedbackDimension: (dimension: string | null) => void;
-  onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
 }
 
 export function AnalysisStatusEvaluation({
