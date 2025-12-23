@@ -2,7 +2,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AnalysisStatus } from '@/components/analysis-status';
 import { AnalysisStatusModalContent } from './analysis-status-modal-content';
 
 interface AnalysisStatusModalProps {

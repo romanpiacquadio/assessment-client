@@ -35,7 +35,7 @@ export function AnalysisStatusModalContent({
   onUserClosePartialFeedback,
   onCloseClick,
 }: AnalysisStatusModalContentProps) {
-  const { dimensionState, analyzingDimension } = useDimensionStateContext();
+  const { dimensionState } = useDimensionStateContext();
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -156,7 +156,7 @@ export function AnalysisStatusModalContent({
             </div>
             {/* Recommendations */}
             <div className="flex w-full flex-1 flex-col justify-center">
-              <h2 className="text-l mb-4 font-semibold text-blue-900 dark:text-blue-100 text-center">
+              <h2 className="text-l mb-4 text-center font-semibold text-blue-900 dark:text-blue-100">
                 Action Points for: {partialFeedbackDimension}
               </h2>
               {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(

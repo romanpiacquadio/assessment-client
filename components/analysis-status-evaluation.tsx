@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Brain, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -14,12 +13,6 @@ export function AnalysisStatusEvaluation({
   className,
   partialFeedbackDimension,
 }: AnalysisStatusEvaluationProps) {
-  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setRootElement(document.body);
-  }, []);
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -135,7 +128,7 @@ export function AnalysisStatusEvaluation({
           </div>
 
           <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
-            Processing your responses for the dimension: {' '}
+            Processing your responses for the dimension:{' '}
             <span className="font-medium text-blue-900 dark:text-blue-100">
               {partialFeedbackDimension}
             </span>

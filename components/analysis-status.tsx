@@ -33,7 +33,7 @@ export function AnalysisStatus({
   setPartialFeedbackDimension,
   onUserClosePartialFeedback,
 }: AnalysisStatusProps) {
-  const { dimensionState, analyzingDimension } = useDimensionStateContext();
+  const { dimensionState } = useDimensionStateContext();
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
