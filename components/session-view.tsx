@@ -48,7 +48,8 @@ export const SessionView = ({
 
   const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded, localMessages } =
     useChatAndTranscription();
-  const { dimensionState, analyzingDimension } = useDimensionStateContext();
+  const { dimensionState, analyzingDimension, analyzingDimensionState } =
+    useDimensionStateContext();
   const router = useRouter();
   const chatViewRef = useRef<{ scrollToBottom: () => void }>(null);
 
@@ -60,6 +61,7 @@ export const SessionView = ({
   // Validate if we are waiting for partial feedback to show the analysis status evaluation component
   if (
     analyzingDimension &&
+    analyzingDimensionState === 'started' &&
     !isWaitingForPartialFeedback &&
     !isViewingPartialFeedback &&
     !assessmentCompleted
@@ -68,12 +70,22 @@ export const SessionView = ({
     setPartialFeedbackDimension(analyzingDimension);
   }
 
+  // Validate if the partial feedback is incompleted or failed hide the analysis status evaluation component
+  if (
+    analyzingDimension &&
+    (analyzingDimensionState === 'incompleted' || analyzingDimensionState === 'failed') &&
+    isWaitingForPartialFeedback
+  ) {
+    setIsWaitingForPartialFeedback(false);
+    setPartialFeedbackDimension(null);
+  }
+
   // Validate if the partial feedback is ready to be viewed
   const partialFeedback = dimensionState?.[partialFeedbackDimension ?? 'Evolution'];
   const partialFeedbackItems = partialFeedback?.partial_feedback;
   const isPartialFeedbackReady = partialFeedbackItems && partialFeedbackItems.length > 0;
 
-  if (isPartialFeedbackReady && isWaitingForPartialFeedback && !assessmentCompleted) {
+  if (isPartialFeedbackReady && isWaitingForPartialFeedback) {
     setIsWaitingForPartialFeedback(false);
     setIsViewingPartialFeedback(true);
   }
