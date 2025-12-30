@@ -125,7 +125,6 @@ export function App({ appConfig }: AppProps) {
   );
 }
 
-
 function InactivityTimeoutHandler({ onSessionEnded }: { onSessionEnded: () => void }) {
   useInactivityTimeout(onSessionEnded);
   return null;

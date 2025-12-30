@@ -1,8 +1,8 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { toast as sonnerToast } from 'sonner';
 import { Clock, X } from '@phosphor-icons/react/dist/ssr';
-import { motion } from 'motion/react';
 import { Button } from './ui/button';
 
 interface InactivityToastProps {
@@ -13,9 +13,7 @@ interface InactivityToastProps {
 
 export function showInactivityToast(toast: Omit<InactivityToastProps, 'id'>) {
   return sonnerToast.custom(
-    (id) => (
-      <InactivityToast id={id} title={toast.title} description={toast.description} />
-    ),
+    (id) => <InactivityToast id={id} title={toast.title} description={toast.description} />,
     {
       duration: Infinity,
       position: 'top-center',
@@ -33,23 +31,21 @@ function InactivityToast({ id, title, description }: InactivityToastProps) {
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className="w-full"
     >
-      <div className="relative w-full rounded-lg border-2 border-destructive bg-destructive text-destructive-foreground px-4 py-3 shadow-lg">
+      <div className="border-destructive bg-destructive text-destructive-foreground relative w-full rounded-lg border-2 px-4 py-3 shadow-lg">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
+          <div className="mt-0.5 flex-shrink-0">
             <Clock weight="bold" className="size-5" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-base font-semibold mb-1.5">
-              {title}
-            </div>
-            <div className="text-sm leading-relaxed whitespace-normal break-words">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1.5 text-base font-semibold">{title}</div>
+            <div className="text-sm leading-relaxed break-words whitespace-normal">
               {description}
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="flex-shrink-0 h-6 w-6 rounded-full hover:bg-destructive-foreground/10 text-destructive-foreground"
+            className="hover:bg-destructive-foreground/10 text-destructive-foreground h-6 w-6 flex-shrink-0 rounded-full"
             onClick={() => sonnerToast.dismiss(id)}
             aria-label="Close notification"
           >

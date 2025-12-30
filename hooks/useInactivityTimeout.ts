@@ -24,12 +24,17 @@ export function useInactivityTimeout(onSessionEnded?: () => void) {
           try {
             const text = await reader.readAll();
             const notification = JSON.parse(text) as InactivityTimeoutNotification;
-            
-            if (notification.type === 'inactivity_timeout' && notification.status === 'session_ended') {
+
+            if (
+              notification.type === 'inactivity_timeout' &&
+              notification.status === 'session_ended'
+            ) {
               // Show notification to the user
               showInactivityToast({
                 title: 'Session Ended',
-                description: notification.message || 'Your session has been automatically closed due to inactivity',
+                description:
+                  notification.message ||
+                  'Your session has been automatically closed due to inactivity',
               });
 
               // Execute callback to clear the session state
