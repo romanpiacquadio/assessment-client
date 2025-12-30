@@ -10,6 +10,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Welcome } from '@/components/welcome';
 import useConnectionDetails from '@/hooks/useConnectionDetails';
 import { DimensionStateProvider } from '@/hooks/useDimensionStateContext';
+import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import type { AppConfig } from '@/lib/types';
 
 const MotionSessionView = motion.create(SessionView);
@@ -97,6 +98,7 @@ export function App({ appConfig }: AppProps) {
       {shouldMountRoomComponent && (
         <RoomContext.Provider value={room}>
           <DimensionStateProvider>
+            <InactivityTimeoutHandler onSessionEnded={onSessionFinished} />
             <RoomAudioRenderer />
             <StartAudio label="Start Audio" />
             {/* --- */}
@@ -121,4 +123,10 @@ export function App({ appConfig }: AppProps) {
       <Toaster />
     </>
   );
+}
+
+
+function InactivityTimeoutHandler({ onSessionEnded }: { onSessionEnded: () => void }) {
+  useInactivityTimeout(onSessionEnded);
+  return null;
 }
