@@ -32,7 +32,11 @@ export function useDimensionState() {
   const [dimensionState, setDimensionState] = useState<DimensionState | null>(loadStateFromStorage);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+
+  // States to handle the partial feedback
   const [analyzingDimension, setAnalyzingDimension] = useState<string | null>(null);
+  const [analyzingDimensionState, setAnalyzingDimensionState] = useState<string | null>(null);
+
   const room = useRoomContext();
   const handlerRegistered = useRef(false);
   const analysisTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,6 +45,8 @@ export function useDimensionState() {
     setDimensionState(null);
     setIsCompleted(false);
     setAnalyzingDimension(null);
+    setAnalyzingDimensionState(null);
+
     if (analysisTimeoutRef.current) {
       clearTimeout(analysisTimeoutRef.current);
       analysisTimeoutRef.current = null;
@@ -60,27 +66,14 @@ export function useDimensionState() {
   }, []);
 
   const processAnalysisNotification = useCallback((notification: AnalysisNotification) => {
-    if (notification.status === 'started') {
-      // Clear any existing timeout
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-      }
-
+    // Set the dimension being analyzed
+    if (notification.dimension) {
       setAnalyzingDimension(notification.dimension);
+    }
 
-      // Set 15-second timeout
-      analysisTimeoutRef.current = setTimeout(() => {
-        console.warn('[DimensionState] Analysis timeout after 15 seconds');
-        setAnalyzingDimension(null);
-        analysisTimeoutRef.current = null;
-      }, 15000);
-    } else if (notification.status === 'completed') {
-      // Clear timeout and stop analyzing
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-        analysisTimeoutRef.current = null;
-      }
-      setAnalyzingDimension(null);
+    // Set the status of the analysis
+    if (notification.status) {
+      setAnalyzingDimensionState(notification.status);
     }
   }, []);
 
@@ -166,11 +159,17 @@ export function useDimensionState() {
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-      }
+      setAnalyzingDimension(null);
+      setAnalyzingDimensionState(null);
     };
   }, []);
 
-  return { dimensionState, isCompleted, analyzingDimension, reset, isHydrated };
+  return {
+    dimensionState,
+    isCompleted,
+    analyzingDimension,
+    analyzingDimensionState,
+    reset,
+    isHydrated,
+  };
 }

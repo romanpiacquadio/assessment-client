@@ -18,21 +18,23 @@ const DIMENSIONS = [
   'Alignment',
 ] as const;
 
-interface AnalysisStatusProps {
+interface AnalysisStatusModalContentProps {
   className?: string;
   isViewingPartialFeedback: boolean;
   partialFeedbackDimension: string | null;
   setPartialFeedbackDimension: (dimension: string | null) => void;
   onUserClosePartialFeedback: (isViewingPartialFeedback: boolean) => void;
+  onCloseClick: () => void;
 }
 
-export function AnalysisStatus({
+export function AnalysisStatusModalContent({
   className,
   isViewingPartialFeedback,
   partialFeedbackDimension,
   setPartialFeedbackDimension,
   onUserClosePartialFeedback,
-}: AnalysisStatusProps) {
+  onCloseClick,
+}: AnalysisStatusModalContentProps) {
   const { dimensionState } = useDimensionStateContext();
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
@@ -66,7 +68,7 @@ export function AnalysisStatus({
       exit={{ opacity: 0, scale: 0.95, y: -20 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className={cn(
-        'relative overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg dark:border-blue-800 dark:from-blue-950/50 dark:to-indigo-950/50',
+        'relative w-full overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg dark:border-blue-800 dark:from-blue-950/50 dark:to-indigo-950/50',
         className
       )}
     >
@@ -100,7 +102,7 @@ export function AnalysisStatus({
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex items-start gap-4">
+      <div className="relative z-10 flex items-start gap-4" id="analysis-status-modal-content">
         {/* Icon with animation */}
         <div className="relative">
           <motion.div
@@ -147,16 +149,16 @@ export function AnalysisStatus({
       <div>
         <div className="mb-8 rounded-lg border p-6">
           <h2 className="mb-4 text-xl font-semibold">{partialFeedbackDimension} Overview</h2>
-          <div className="flex flex-col items-center justify-center gap-8">
+          <div className="flex flex-row items-center justify-center gap-8">
             {/* Centered RadarChart */}
             <div className="flex w-2/5 items-center justify-center">
               <RadarChart data={chartData} />
             </div>
             {/* Recommendations */}
-            <h2 className="text-l mb-4 font-semibold text-blue-900 dark:text-blue-100">
-              Action Points for: {partialFeedbackDimension}
-            </h2>
             <div className="flex w-full flex-1 flex-col justify-center">
+              <h2 className="text-l mb-4 text-center font-semibold text-blue-900 dark:text-blue-100">
+                Action Points for: {partialFeedbackDimension}
+              </h2>
               {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
                 (recommendation: string, index: number) => (
                   <div
@@ -184,9 +186,11 @@ export function AnalysisStatus({
         {/* Button to continue the analysis with the next dimension */}
         <Button
           className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
+          id="continue-with-next-dimension-button"
           onClick={() => {
             onUserClosePartialFeedback(false);
             setPartialFeedbackDimension(null);
+            onCloseClick();
           }}
         >
           CONTINUE WITH NEXT DIMENSION
