@@ -54,7 +54,7 @@ export function AnalysisStatusEvaluation({
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex items-start gap-4">
+      <div className="relative z-10 flex items-start gap-4" id="analysis-status-evaluation">
         {/* Icon with animation */}
         <div className="relative">
           <motion.div

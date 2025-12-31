@@ -102,7 +102,7 @@ export function AnalysisStatusModalContent({
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex items-start gap-4">
+      <div className="relative z-10 flex items-start gap-4" id="analysis-status-modal-content">
         {/* Icon with animation */}
         <div className="relative">
           <motion.div
@@ -186,6 +186,7 @@ export function AnalysisStatusModalContent({
         {/* Button to continue the analysis with the next dimension */}
         <Button
           className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
+          id="continue-with-next-dimension-button"
           onClick={() => {
             onUserClosePartialFeedback(false);
             setPartialFeedbackDimension(null);
