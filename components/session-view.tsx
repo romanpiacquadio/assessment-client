@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import remarkGfm from 'remark-gfm';
 import { type ReceivedChatMessage } from '@livekit/components-react';
-import { AnalysisStatus } from '@/components/analysis-status';
 import { DimensionDisplay } from '@/components/dimension-display';
 import { AgentControlBar } from '@/components/livekit/agent-control-bar/agent-control-bar';
 import { ChatEntry } from '@/components/livekit/chat/chat-entry';
@@ -17,6 +16,8 @@ import useChatAndTranscription from '@/hooks/useChatAndTranscription';
 import { useDebugMode } from '@/hooks/useDebug';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
+import { AnalysisStatusEvaluation } from './analysis-status-evaluation';
+import { AnalysisStatusModal } from './analysis-status-modal';
 
 interface SessionViewProps {
   disabled: boolean;
@@ -41,27 +42,53 @@ export const SessionView = ({
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   // States to handle the partial feedback
+  const [isWaitingForPartialFeedback, setIsWaitingForPartialFeedback] = useState(false);
   const [isViewingPartialFeedback, setIsViewingPartialFeedback] = useState(false);
   const [partialFeedbackDimension, setPartialFeedbackDimension] = useState<string | null>(null);
 
   const { messages, send, sendToggleOutput, sendToggleInput, isHistoryLoaded, localMessages } =
     useChatAndTranscription();
-  const { dimensionState, analyzingDimension } = useDimensionStateContext();
+  const { dimensionState, analyzingDimension, analyzingDimensionState } =
+    useDimensionStateContext();
   const router = useRouter();
   const chatViewRef = useRef<{ scrollToBottom: () => void }>(null);
-
-  if (analyzingDimension && !isViewingPartialFeedback) {
-    setIsViewingPartialFeedback(true);
-    setPartialFeedbackDimension(analyzingDimension);
-  }
 
   useDebugMode();
 
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
 
-  // Keep the space permanently - don't remove it
-  // The space will remain to give room for the agent's response
+  // Validate if we are waiting for partial feedback to show the analysis status evaluation component
+  if (
+    analyzingDimension &&
+    analyzingDimensionState === 'started' &&
+    !isWaitingForPartialFeedback &&
+    !isViewingPartialFeedback &&
+    !assessmentCompleted
+  ) {
+    setIsWaitingForPartialFeedback(true);
+    setPartialFeedbackDimension(analyzingDimension);
+  }
+
+  // Validate if the partial feedback is incompleted or failed hide the analysis status evaluation component
+  if (
+    analyzingDimension &&
+    (analyzingDimensionState === 'incompleted' || analyzingDimensionState === 'failed') &&
+    isWaitingForPartialFeedback
+  ) {
+    setIsWaitingForPartialFeedback(false);
+    setPartialFeedbackDimension(null);
+  }
+
+  // Validate if the partial feedback is ready to be viewed
+  const partialFeedback = dimensionState?.[partialFeedbackDimension ?? 'Evolution'];
+  const partialFeedbackItems = partialFeedback?.partial_feedback;
+  const isPartialFeedbackReady = partialFeedbackItems && partialFeedbackItems.length > 0;
+
+  if (isPartialFeedbackReady && isWaitingForPartialFeedback) {
+    setIsWaitingForPartialFeedback(false);
+    setIsViewingPartialFeedback(true);
+  }
 
   async function handleSendMessage(message: string) {
     setIsWaitingForResponse(true);
@@ -125,26 +152,23 @@ export const SessionView = ({
             )}
           </AnimatePresence>
 
-          {/* Analysis Status Component */}
-          <AnimatePresence>
-            {true && (
-              <motion.div
-                key="analysis-status"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <AnalysisStatus
-                  className="mt-4"
-                  isViewingPartialFeedback={isViewingPartialFeedback}
-                  partialFeedbackDimension={partialFeedbackDimension}
-                  setPartialFeedbackDimension={setPartialFeedbackDimension}
-                  onUserClosePartialFeedback={setIsViewingPartialFeedback}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Analysis Status Evaluation */}
+          {isWaitingForPartialFeedback && (
+            <AnalysisStatusEvaluation
+              className="mt-4"
+              partialFeedbackDimension={partialFeedbackDimension}
+            />
+          )}
+
+          {/* Analysis Status Modal */}
+          {isViewingPartialFeedback && (
+            <AnalysisStatusModal
+              isViewingPartialFeedback={isViewingPartialFeedback}
+              partialFeedbackDimension={partialFeedbackDimension}
+              setPartialFeedbackDimension={setPartialFeedbackDimension}
+              setIsViewingPartialFeedback={setIsViewingPartialFeedback}
+            />
+          )}
 
           {/* Space for response when waiting */}
           {isWaitingForResponse && (
