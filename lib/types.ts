@@ -90,3 +90,10 @@ export interface AnalysisNotification {
   status: 'started' | 'completed';
   dimension: string;
 }
+
+export interface InactivityTimeoutNotification {
+  type: 'inactivity_timeout';
+  status: 'session_ended';
+  reason: 'inactivity_timeout';
+  message: string;
+}
