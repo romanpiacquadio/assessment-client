@@ -11,8 +11,10 @@ interface InactivityToastProps {
   description: string;
 }
 
+let inactivityToastId: string | number | null = null;
+
 export function showInactivityToast(toast: Omit<InactivityToastProps, 'id'>) {
-  return sonnerToast.custom(
+  inactivityToastId = sonnerToast.custom(
     (id) => <InactivityToast id={id} title={toast.title} description={toast.description} />,
     {
       duration: Infinity,
@@ -20,6 +22,14 @@ export function showInactivityToast(toast: Omit<InactivityToastProps, 'id'>) {
       className: 'w-full max-w-md',
     }
   );
+  return inactivityToastId;
+}
+
+export function dismissInactivityToast() {
+  if (inactivityToastId !== null) {
+    sonnerToast.dismiss(inactivityToastId);
+    inactivityToastId = null;
+  }
 }
 
 function InactivityToast({ id, title, description }: InactivityToastProps) {
@@ -46,7 +56,10 @@ function InactivityToast({ id, title, description }: InactivityToastProps) {
             variant="ghost"
             size="icon"
             className="hover:bg-destructive-foreground/10 text-destructive-foreground h-6 w-6 flex-shrink-0 rounded-full"
-            onClick={() => sonnerToast.dismiss(id)}
+            onClick={() => {
+              sonnerToast.dismiss(id);
+              inactivityToastId = null;
+            }}
             aria-label="Close notification"
           >
             <X weight="bold" className="size-4" />

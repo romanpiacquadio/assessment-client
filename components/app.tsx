@@ -5,6 +5,7 @@ import { Room, RoomEvent } from 'livekit-client';
 import { motion } from 'motion/react';
 import { RoomAudioRenderer, RoomContext, StartAudio } from '@livekit/components-react';
 import { toastAlert } from '@/components/alert-toast';
+import { dismissInactivityToast } from '@/components/inactivity-toast';
 import { SessionView } from '@/components/session-view';
 import { Toaster } from '@/components/ui/sonner';
 import { Welcome } from '@/components/welcome';
@@ -69,6 +70,7 @@ export function App({ appConfig }: AppProps) {
   }, [room, sessionStarted, connectionDetails]);
 
   const onStartCall = () => {
+    dismissInactivityToast();
     setSessionStarted(true);
     setSessionViewVisible(true);
     setShouldMountRoomComponent(true);
