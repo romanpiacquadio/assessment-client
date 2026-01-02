@@ -274,5 +274,15 @@
       break-inside: avoid;
       page-break-inside: avoid;
     }
+
+    /* Avoid generate multiple pages by the long size of background chat component */
+    #non-printable-app-container {
+      visibility: hidden !important;
+      display: none !important;
+    }
+
+    #printable-modal-content > div:first-child {
+      visibility: visible !important;
+    }
   }
 }
