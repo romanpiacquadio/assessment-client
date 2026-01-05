@@ -85,9 +85,98 @@ export default function ResultsPage() {
         </div>
       </div>
 
+      <div className="mt-4 mb-8 rounded-lg border p-6">
+        <h2 className="mb-4 text-xl font-semibold">Evaluation Criteria by Dimension</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full rounded-lg border border-gray-200 bg-white text-left text-sm dark:border-gray-700 dark:bg-gray-900">
+            <thead>
+              <tr className="bg-muted dark:bg-gray-800">
+                <th className="border-b border-gray-200 px-4 py-2 font-semibold text-blue-900 dark:border-gray-700 dark:text-blue-100">
+                  Dimension
+                </th>
+                <th className="border-b border-gray-200 px-4 py-2 font-semibold text-blue-900 dark:border-gray-700 dark:text-blue-100">
+                  Criteria Explained
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">
+                  Evolution
+                </td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension refers to the maturity of AI-based solutions developed internally
+                  by the company, moving from PoCs to MVPs to fully-functional or enterprise-grade
+                  applications.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">Outcome</td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension evaluates whether the company is tracking and achieving concrete
+                  business outcomes from their AI initiatives. It includes measurements like ROI,
+                  efficiency gains, cost reduction, or customer satisfaction improvements. Business
+                  impact is essential to justify AI investments.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">Leverage</td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension assesses how AI is applied across the organization, from
+                  unstructured, individual use to strategic, multi-area implementation with
+                  increasing levels of autonomy. The goal is to understand the functional maturity
+                  of AI use in terms of assistance level.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">
+                  Sponsorship
+                </td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension measures the level of executive support and financial investment
+                  dedicated to AI initiatives. It reflects whether AI is a strategic priority for
+                  the leadership team and if dedicated resources are allocated.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">Coverage</td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension evaluates the breadth of AI adoption across the organization — how
+                  many business areas or workflows are impacted by AI, and how deeply it is
+                  integrated into core operations.
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-medium text-blue-800 dark:text-blue-200">
+                  Alignment
+                </td>
+                <td className="text-muted-foreground px-4 py-2">
+                  This dimension evaluates whether there is a coherent, standardized, and strategic
+                  approach to how generative AI is used across the company. It focuses on
+                  governance, infrastructure, collaboration across teams, and flexibility to adapt
+                  to the evolving AI landscape.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="mb-8 rounded-lg border p-6">
         <h2 className="mb-4 text-xl font-semibold">Executive Summary</h2>
-        <p className="text-muted-foreground">{report.executive_summary}</p>
+        {report.executive_summary
+          .split(/\n\n/)
+          .filter((para: string) => para.trim() !== '')
+          .map((para: string, idx: number) => (
+            <p key={idx} className="text-muted-foreground mb-4 last:mb-0">
+              {para.split('\n').map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i !== para.split('\n').length - 1 && <br />}
+                </span>
+              ))}
+            </p>
+          ))}
       </div>
 
       <div className="mb-8">

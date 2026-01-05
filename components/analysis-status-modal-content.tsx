@@ -63,6 +63,7 @@ export function AnalysisStatusModalContent({
 
   return (
     <motion.div
+      id="printable-modal-content"
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -182,7 +183,15 @@ export function AnalysisStatusModalContent({
         </div>
       </div>
 
-      <div className="relative z-20 mt-4 flex justify-end gap-2">
+      <div className="no-print relative z-20 mt-4 flex justify-end gap-2">
+        {/* Print button */}
+        <Button
+          className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
+          onClick={() => window.print()}
+        >
+          SAVE AS PDF
+        </Button>
+
         {/* Button to continue the analysis with the next dimension */}
         <Button
           className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
