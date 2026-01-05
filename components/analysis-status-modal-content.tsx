@@ -210,11 +210,7 @@ export function AnalysisStatusModalContent({
           asChild
           className="rounded-md bg-orange-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
         >
-          <a
-            href="https://cloudx.com/contact-us"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://cloudx.com/contact-us" target="_blank" rel="noopener noreferrer">
             CONTACT CLOUDX TEAM
           </a>
         </Button>
