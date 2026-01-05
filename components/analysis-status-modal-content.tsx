@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { PopupButton } from 'react-calendly';
 import { FileChartColumnIncreasing, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
@@ -36,13 +34,6 @@ export function AnalysisStatusModalContent({
   onCloseClick,
 }: AnalysisStatusModalContentProps) {
   const { dimensionState } = useDimensionStateContext();
-  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    // In Next.js, there's no #root element. Use document.body as the root element for portals
-    // This ensures the Calendly popup modal is rendered correctly in the DOM
-    setRootElement(document.body);
-  }, []);
 
   if (!isViewingPartialFeedback) {
     return null;
