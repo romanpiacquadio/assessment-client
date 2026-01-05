@@ -183,7 +183,7 @@ export function AnalysisStatusModalContent({
         </div>
       </div>
 
-      <div className="relative z-20 mt-4 flex justify-end gap-2 no-print">
+      <div className="no-print relative z-20 mt-4 flex justify-end gap-2">
         {/* Print button */}
         <Button
           className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
