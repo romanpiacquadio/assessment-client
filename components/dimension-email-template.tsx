@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FileChartColumnIncreasing } from 'lucide-react';
 import { Button, Container, Heading, Html, Section, Text } from '@react-email/components';
-import { DimensionState } from '@/lib/types';
+import { DimensionState, DimensionStateItem } from '@/lib/types';
 import { RadarChart } from './radar-chart';
 
 const DIMENSIONS = [
@@ -15,23 +15,28 @@ const DIMENSIONS = [
 
 export const DimensionEmailTemplate = ({
   partialFeedbackDimension,
-  dimensionState,
+  dimensionStates,
 }: {
   partialFeedbackDimension: string | null;
-  dimensionState: DimensionState | null;
+  dimensionStates: DimensionState | null;
 }) => {
   const chartData = {
     labels: [...DIMENSIONS],
     datasets: [
       {
         label: `${partialFeedbackDimension} Score`,
-        data: DIMENSIONS.map((dimension) => dimensionState?.[dimension]?.scoring || 0),
+        data: DIMENSIONS.map((dimension) => dimensionStates?.[dimension]?.scoring || 0),
         backgroundColor: 'rgba(99, 102, 241, 0.2)',
         borderColor: 'rgba(99, 102, 241, 1)',
         borderWidth: 2,
       },
     ],
   };
+
+  let currentState = dimensionStates?.[
+    partialFeedbackDimension as keyof DimensionState
+  ] as DimensionStateItem;
+  let partialFeedback = currentState.partial_feedback;
 
   return (
     <Html>
@@ -80,73 +85,26 @@ export const DimensionEmailTemplate = ({
                     <h2 className="text-l mb-4 text-center font-semibold text-blue-900 dark:text-blue-100">
                       Action Points for: {partialFeedbackDimension}
                     </h2>
-                    {dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map(
-                      (recommendation: string, index: number) => (
-                        <div
-                          key={index}
-                          className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
-                          style={{
-                            maxWidth: 700,
-                            minWidth: 350,
-                            marginTop: '0.2rem',
-                            marginBottom: '0.2rem',
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
-                          }}
-                        >
-                          {recommendation}
-                        </div>
-                      )
-                    )}
+
+                    {partialFeedback.map((recommendation: string, index: number) => (
+                      <div
+                        key={index}
+                        className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
+                        style={{
+                          maxWidth: 700,
+                          minWidth: 350,
+                          marginTop: '0.2rem',
+                          marginBottom: '0.2rem',
+                          marginLeft: 'auto',
+                          marginRight: 'auto',
+                        }}
+                      >
+                        {recommendation}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="no-print relative z-20 mt-4 flex justify-end gap-2">
-              {/* Button to send email */}
-              <Button
-                className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
-                onClick={() => {
-                  onSendEmail();
-                }}
-              >
-                SEND TO EMAIL
-              </Button>
-              {/* Print button */}
-              <Button
-                className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
-                onClick={() => window.print()}
-              >
-                SAVE AS PDF
-              </Button>
-
-              {/* Button to continue the analysis with the next dimension */}
-              <Button
-                className="font:bg-green-500 rounded-md bg-green-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-green-600 active:bg-green-500"
-                id="continue-with-next-dimension-button"
-                onClick={() => {
-                  onUserClosePartialFeedback(false);
-                  setPartialFeedbackDimension(null);
-                  onCloseClick();
-                }}
-              >
-                CONTINUE WITH NEXT DIMENSION
-              </Button>
-
-              {/* Button to contact CloudX team for support */}
-              {rootElement && (
-                <PopupButton
-                  url={process.env.NEXT_PUBLIC_CALENDLY_URL ?? ''}
-                  /*
-                   * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
-                   * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
-                   */
-                  rootElement={rootElement}
-                  text="CONTACT CLOUDX TEAM"
-                  className="rounded-md bg-orange-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-orange-600 focus:bg-orange-500 active:bg-orange-500"
-                />
-              )}
             </div>
           </div>
         </Container>
