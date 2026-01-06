@@ -2,8 +2,10 @@
 
 import { FileChartColumnIncreasing, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
+import { render } from '@react-email/render';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
 import { cn } from '@/lib/utils';
+import { DimensionEmailTemplate } from './dimension-email-template';
 import { RadarChart } from './radar-chart';
 import { Button } from './ui/button';
 
@@ -54,19 +56,25 @@ export function AnalysisStatusModalContent({
 
   function onSendEmail() {
     const handleSend = async () => {
+      const emailHtml = await render(
+        DimensionEmailTemplate({
+          partialFeedbackDimension: partialFeedbackDimension,
+          dimensionStates: dimensionState,
+        })
+      );
+
       const res = await fetch('/api/send-mail', {
         method: 'POST',
         body: JSON.stringify({
-          name: "Adrian Ramirez",
-          email: "luis.ramirez@cloudx.com",
+          email: 'luis.ramirez@cloudx.com',
           dimension: partialFeedbackDimension,
-          message: dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map((recommendation: string, index: number) => `${index + 1}. ${recommendation}`).join('\n')
+          html: emailHtml,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
-  
-      if (res.ok) alert("Sent!");
-      else alert("Error!");
+
+      if (res.ok) alert('Sent!');
+      else alert('Error!');
     };
     handleSend();
   }
