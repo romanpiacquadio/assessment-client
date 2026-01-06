@@ -77,7 +77,23 @@ export default function useChatAndTranscription() {
       ...transcriptions.map((transcription) => transcriptionToChatMessage(transcription, room)),
       ...chat.chatMessages,
     ];
-    return merged.sort((a, b) => a.timestamp - b.timestamp);
+    return merged.sort((a, b) => {
+      const timeDiff = a.timestamp - b.timestamp;
+      const timeThreshold = 1000;
+
+      // If timestamps are < 1 second, use secondary sorting by message origin
+      if (Math.abs(timeDiff) < timeThreshold) {
+        const aIsUser = a.from?.isLocal ?? false;
+        const bIsUser = b.from?.isLocal ?? false;
+
+        // User messages should come before agent messages when timestamps are close
+        if (aIsUser && !bIsUser) return -1;
+        if (!aIsUser && bIsUser) return 1;
+      }
+
+      // Otherwise, sort by timestamp
+      return timeDiff;
+    });
   }, [historicalMessages, transcriptions, chat.chatMessages, room]);
 
   // Keep messages in local even when the room is disconnected
