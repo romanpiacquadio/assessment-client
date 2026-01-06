@@ -61,6 +61,25 @@ export function AnalysisStatusModalContent({
     ],
   };
 
+  function onSendEmail() {
+    const handleSend = async () => {
+      const res = await fetch('/api/send-mail', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: "Adrian Ramirez",
+          email: "luis.ramirez@cloudx.com",
+          dimension: partialFeedbackDimension,
+          message: dimensionState?.[partialFeedbackDimension ?? 'Evolution'].partial_feedback.map((recommendation: string, index: number) => `${index + 1}. ${recommendation}`).join('\n')
+        }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      if (res.ok) alert("Sent!");
+      else alert("Error!");
+    };
+    handleSend();
+  }
+
   return (
     <motion.div
       id="printable-modal-content"
@@ -184,6 +203,15 @@ export function AnalysisStatusModalContent({
       </div>
 
       <div className="no-print relative z-20 mt-4 flex justify-end gap-2">
+        {/* Button to send email */}
+        <Button
+          className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
+          onClick={() => {
+            onSendEmail();
+          }}
+        >
+          SEND TO EMAIL
+        </Button>
         {/* Print button */}
         <Button
           className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
