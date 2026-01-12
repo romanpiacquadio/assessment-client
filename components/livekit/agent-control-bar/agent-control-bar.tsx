@@ -23,6 +23,7 @@ export interface AgentControlBarProps
   onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
   isVoiceMode?: boolean;
   isViewingPartialFeedback?: boolean;
+  isEndingByAgent?: boolean;
   onToggleVoiceMode?: (enabled: boolean) => void;
 }
 
@@ -40,6 +41,7 @@ export function AgentControlBar({
   onDeviceError,
   isVoiceMode,
   isViewingPartialFeedback,
+  isEndingByAgent,
   onToggleVoiceMode,
   ...props
 }: AgentControlBarProps) {
@@ -162,8 +164,8 @@ export function AgentControlBar({
           <div className="flex h-8 w-full">
             <ChatInput
               onSend={handleSendMessage}
-              disabled={isVoiceMode || isSendingMessage}
-              disableInput={isVoiceMode} // The input is only disabled when voice mode is enabled
+              disabled={isVoiceMode || isSendingMessage || isEndingByAgent}
+              disableInput={isVoiceMode || isEndingByAgent} // The input is disabled when voice mode is enabled or when ending by agent
               isViewingPartialFeedback={isViewingPartialFeedback}
               className="w-full"
             />
