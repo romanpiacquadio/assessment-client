@@ -1,17 +1,6 @@
 import * as React from 'react';
-import { FileChartColumnIncreasing } from 'lucide-react';
-import { Button, Container, Heading, Html, Section, Text } from '@react-email/components';
+import { Container, Heading, Html, Section } from '@react-email/components';
 import { DimensionState, DimensionStateItem } from '@/lib/types';
-import { RadarChart } from './radar-chart';
-
-const DIMENSIONS = [
-  'Evolution',
-  'Outcome',
-  'Leverage',
-  'Sponsorship',
-  'Coverage',
-  'Alignment',
-] as const;
 
 export const DimensionEmailTemplate = ({
   partialFeedbackDimension,
@@ -20,19 +9,6 @@ export const DimensionEmailTemplate = ({
   partialFeedbackDimension: string | null;
   dimensionStates: DimensionState | null;
 }) => {
-  const chartData = {
-    labels: [...DIMENSIONS],
-    datasets: [
-      {
-        label: `${partialFeedbackDimension} Score`,
-        data: DIMENSIONS.map((dimension) => dimensionStates?.[dimension]?.scoring || 0),
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        borderColor: 'rgba(99, 102, 241, 1)',
-        borderWidth: 2,
-      },
-    ],
-  };
-
   let currentState = dimensionStates?.[
     partialFeedbackDimension as keyof DimensionState
   ] as DimensionStateItem;
@@ -44,69 +20,46 @@ export const DimensionEmailTemplate = ({
         <Container style={container}>
           <Heading style={h1}>Partial Feedback for {partialFeedbackDimension}!</Heading>
 
-          <div className="relative w-full overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg dark:border-blue-800 dark:from-blue-950/50 dark:to-indigo-950/50">
-            {/* Main content */}
-            <div className="relative z-10 flex items-start gap-4">
-              {/* Icon with animation */}
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
-                  <FileChartColumnIncreasing className="h-6 w-6" />
-                </div>
-              </div>
-
-              {/* Text content */}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                    Analyzed Dimension: {partialFeedbackDimension}
-                  </h3>
-                </div>
-
-                <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
-                  Partial feedback generated for:{' '}
-                  <span className="font-medium text-blue-900 dark:text-blue-100">
-                    {partialFeedbackDimension}
-                  </span>
-                </p>
-              </div>
+          <div style={statsContainer}>
+            <h3 style={statsTitle}>Statistics for current dimension:</h3>
+            <div style={statsDetails}>
+              <p style={statsDim}>
+                <span style={highlightLabel}>Analyzed Dimension: </span>
+                <span>{partialFeedbackDimension}</span>
+              </p>
+              <div style={{ height: '16px', width: '100%' }} />
+              <p style={statsScore}>
+                <span style={highlightLabel}>Score: </span>
+                <span>{currentState.scoring}</span>
+              </p>
             </div>
+          </div>
 
-            {/* Partial feedback overview */}
+          {/* Partial feedback overview */}
+          <div>
+            <h2>{partialFeedbackDimension} Overview</h2>
             <div>
-              <div className="mb-8 rounded-lg border p-6">
-                <h2 className="mb-4 text-xl font-semibold">{partialFeedbackDimension} Overview</h2>
-                <div className="flex flex-row items-center justify-center gap-8">
-                  {/* Centered RadarChart */}
-                  <div className="flex w-2/5 items-center justify-center">
-                    <RadarChart data={chartData} />
+              {/* Recommendations */}
+              <div>
+                <h2>Action Points for: {partialFeedbackDimension}</h2>
+                {partialFeedback.map((recommendation: string, index: number) => (
+                  <div style={recommendationItem} key={index}>
+                    {`${index + 1}. ${recommendation}`}
                   </div>
-                  {/* Recommendations */}
-                  <div className="flex w-full flex-1 flex-col justify-center">
-                    <h2 className="text-l mb-4 text-center font-semibold text-blue-900 dark:text-blue-100">
-                      Action Points for: {partialFeedbackDimension}
-                    </h2>
-
-                    {partialFeedback.map((recommendation: string, index: number) => (
-                      <div
-                        key={index}
-                        className="my-2 flex items-center justify-center rounded-lg bg-sky-200 px-4 py-2 text-center text-xs font-medium shadow-sm transition-all duration-200 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800"
-                        style={{
-                          maxWidth: 700,
-                          minWidth: 350,
-                          marginTop: '0.2rem',
-                          marginBottom: '0.2rem',
-                          marginLeft: 'auto',
-                          marginRight: 'auto',
-                        }}
-                      >
-                        {recommendation}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
+
+          {/* Button to contact CloudX team for support */}
+          <a
+            href="https://cloudx.com/contact-us"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={contactButton}
+          >
+            CONTACT CLOUDX TEAM
+          </a>
         </Container>
       </Section>
     </Html>
@@ -115,7 +68,72 @@ export const DimensionEmailTemplate = ({
 
 // Styles (Email CSS must be inline or object-based)
 const main = { backgroundColor: '#ffffff', padding: '20px' };
-const container = { margin: '0 auto', width: '580px' };
+const container = { margin: '0', width: '580px' };
 const h1 = { color: '#333', fontSize: '24px' };
-const text = { color: '#555', fontSize: '16px' };
-const button = { backgroundColor: '#007bff', color: '#fff', borderRadius: '5px' };
+const statsContainer: React.CSSProperties = {
+  marginBottom: '24px',
+  padding: '16px',
+  backgroundColor: 'rgba(249, 250, 251, 0.6)', // increased transparency
+  borderRadius: '8px',
+  border: '1px solid #e5e7eb',
+};
+const statsTitle: React.CSSProperties = {
+  color: '#333',
+  fontSize: '20px',
+  fontWeight: 700,
+  marginBottom: '16px',
+  marginTop: 0,
+};
+const statsDetails: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '8px',
+};
+const statsDim: React.CSSProperties = {
+  color: '#555',
+  fontSize: '16px',
+  margin: 0,
+  marginBottom: '8px',
+  textAlign: 'left',
+  lineHeight: '1.5',
+  width: '100%',
+};
+const statsScore: React.CSSProperties = {
+  color: '#555',
+  fontSize: '16px',
+  margin: 0,
+  textAlign: 'left',
+  lineHeight: '1.5',
+  width: '100%',
+};
+const highlightLabel: React.CSSProperties = {
+  color: '#555',
+  fontSize: '16px',
+  margin: 0,
+  textAlign: 'left',
+  lineHeight: '1.5',
+  fontStyle: 'italic',
+};
+const recommendationItem: React.CSSProperties = {
+  margin: '4px',
+  textAlign: 'justify',
+  fontSize: '14px',
+};
+const contactButton: React.CSSProperties = {
+  display: 'inline-block',
+  borderRadius: '6px',
+  backgroundColor: '#f97316',
+  paddingLeft: '16px',
+  paddingRight: '16px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
+  fontSize: '12px',
+  fontWeight: 700,
+  color: '#ffffff',
+  textTransform: 'uppercase',
+  textDecoration: 'none',
+  textAlign: 'center',
+  marginTop: '24px',
+  marginBottom: '24px',
+};
