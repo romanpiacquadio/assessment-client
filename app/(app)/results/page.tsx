@@ -29,11 +29,16 @@ export default function ResultsPage() {
       // Clear local storage as well
       if (typeof window !== 'undefined') {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('maturity-model-chat-history');
       }
       router.push('/');
     } catch (err) {
       console.error('Error starting new assessment:', err);
     }
+  };
+
+  const handleBackToChat = () => {
+    router.push('/?resume=true');
   };
 
   if (!dimensionState || dimensionState.current !== 'COMPLETED') {
@@ -203,6 +208,9 @@ export default function ResultsPage() {
       </div>
 
       <div className="no-print flex gap-4">
+        <Button variant="outline" onClick={handleBackToChat}>
+          Back to Assessment
+        </Button>
         <Button onClick={handleStartNewAssessment} disabled={isClearing}>
           {isClearing ? 'Clearing...' : 'Start New Assessment'}
         </Button>

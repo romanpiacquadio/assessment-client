@@ -6,20 +6,37 @@ import {
   useRoomContext,
   useTranscriptions,
 } from '@livekit/components-react';
-import { historyToChatMessage, transcriptionToChatMessage } from '@/lib/utils';
+import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
+import {
+  createChatMessageFromSerializable,
+  historyToChatMessage,
+  transcriptionToChatMessage,
+} from '@/lib/utils';
 
 interface TextStreamReader {
   readAll(): Promise<string>;
 }
 
+// Serializable format for localStorage
+interface SerializableChatMessage {
+  id: string;
+  timestamp: number;
+  message: string;
+  role: 'user' | 'assistant';
+}
+
+const CHAT_HISTORY_STORAGE_KEY = 'maturity-model-chat-history';
+
 export default function useChatAndTranscription() {
   const transcriptions: TextStreamData[] = useTranscriptions();
   const chat = useChat();
   const room = useRoomContext();
+  const { dimensionState } = useDimensionStateContext();
 
   const [historicalMessages, setHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
   const [localHistoricalMessages, setLocalHistoricalMessages] = useState<ReceivedChatMessage[]>([]);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
+  const [savedHistoryLoaded, setSavedHistoryLoaded] = useState(false);
 
   // Reset state when room disconnects
   useEffect(() => {
@@ -37,9 +54,48 @@ export default function useChatAndTranscription() {
     };
   }, [room]);
 
+  // Load chat history from localStorage or backend
   useEffect(() => {
     if (!room || isHistoryLoaded) return;
 
+    const isCompleted = dimensionState?.current === 'COMPLETED';
+
+    // Function to load from localStorage
+    const loadFromLocalStorage = (): boolean => {
+      if (!isCompleted || !room) return false;
+      // For completed assessments, we don't need the room to be connected
+      // We can load messages even if room is not connected
+
+      try {
+        const savedHistory = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+        if (savedHistory) {
+          const parsed: SerializableChatMessage[] = JSON.parse(savedHistory);
+
+          // Convert serializable messages back to ReceivedChatMessage
+          // Use createChatMessageFromSerializable which doesn't require room connection
+          const restoredMessages: ReceivedChatMessage[] = parsed.map((msg) => {
+            return createChatMessageFromSerializable(msg, room);
+          });
+
+          setHistoricalMessages(restoredMessages);
+          setIsHistoryLoaded(true);
+          return true; // Successfully loaded
+        }
+      } catch (error) {
+        console.error('[ChatHistory] Error loading chat history from localStorage:', error);
+      }
+      return false;
+    };
+
+    // If assessment is completed, try to load from localStorage
+    // For completed assessments, we don't need to wait for room connection
+    if (isCompleted) {
+      if (loadFromLocalStorage()) {
+        return; // Successfully loaded, don't register backend handler
+      }
+    }
+
+    // For non-completed assessments, use backend handler
     const handleHistoryBackfill = async (reader: TextStreamReader) => {
       try {
         const text = await reader.readAll();
@@ -55,7 +111,7 @@ export default function useChatAndTranscription() {
           setHistoricalMessages(parsed);
         }
       } catch (error) {
-        console.error('[HISTORIAL] Error al parsear el historial de chat:', error);
+        console.error('[HISTORIAL] Error parsing chat history:', error);
       }
       setIsHistoryLoaded(true);
     };
@@ -69,7 +125,7 @@ export default function useChatAndTranscription() {
         console.log(error);
       }
     };
-  }, [room, isHistoryLoaded]);
+  }, [room, isHistoryLoaded, dimensionState]);
 
   const mergedMessages = useMemo(() => {
     const merged: Array<ReceivedChatMessage> = [
@@ -103,7 +159,26 @@ export default function useChatAndTranscription() {
       return mergedMessages;
     }
     return localHistoricalMessages;
-  }, [mergedMessages]);
+  }, [mergedMessages, localHistoricalMessages]);
+
+  // Save chat history to localStorage when assessment is completed
+  useEffect(() => {
+    const isCompleted = dimensionState?.current === 'COMPLETED';
+    if (isCompleted && mergedMessages.length > 0 && !savedHistoryLoaded) {
+      try {
+        const serializableMessages: SerializableChatMessage[] = mergedMessages.map((msg) => ({
+          id: msg.id,
+          timestamp: msg.timestamp,
+          message: msg.message,
+          role: msg.from?.isLocal ? 'user' : 'assistant',
+        }));
+        localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(serializableMessages));
+        setSavedHistoryLoaded(true);
+      } catch (error) {
+        console.error('[ChatHistory] Error saving chat history to localStorage:', error);
+      }
+    }
+  }, [dimensionState, mergedMessages, savedHistoryLoaded]);
 
   const getAgentIdentity = useCallback(() => {
     if (!room) return null;
@@ -138,7 +213,7 @@ export default function useChatAndTranscription() {
     [room, getAgentIdentity]
   );
 
-  // Enviar un RPC para cambiar el modo de input (audio on/off)
+  // Send RPC to toggle input mode (audio on/off)
   const sendToggleInput = useCallback(
     async (payload: string) => {
       if (!room) {

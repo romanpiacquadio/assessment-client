@@ -56,6 +56,25 @@ export function historyToChatMessage(historyItem: HistoryItem, room: Room): Rece
   };
 }
 
+// Create chat message from serializable data without requiring room connection
+// Used for displaying completed assessment history
+export function createChatMessageFromSerializable(
+  msg: { id: string; timestamp: number; message: string; role: 'user' | 'assistant' },
+  room: Room
+): ReceivedChatMessage {
+  return {
+    id: msg.id,
+    timestamp: msg.timestamp,
+    message: msg.message,
+    from:
+      msg.role === 'user'
+        ? room.localParticipant
+        : // For assistant messages, we can use undefined or create a minimal participant reference
+          // The ChatEntry component will handle undefined gracefully
+          undefined,
+  };
+}
+
 export function getOrigin(headers: Headers): string {
   const host = headers.get('host');
   const proto = headers.get('x-forwarded-proto') || 'https';
