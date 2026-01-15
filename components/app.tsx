@@ -95,12 +95,7 @@ export function App({ appConfig }: AppProps) {
       })();
 
     // Only connect if session started, room is disconnected, we have connection details, and assessment is not completed
-    if (
-      sessionStarted &&
-      room.state === 'disconnected' &&
-      connectionDetails &&
-      !isCompleted
-    ) {
+    if (sessionStarted && room.state === 'disconnected' && connectionDetails && !isCompleted) {
       Promise.all([
         room.connect(connectionDetails.serverUrl, connectionDetails.participantToken),
       ]).catch((error) => {
