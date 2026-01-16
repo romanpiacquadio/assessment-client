@@ -66,7 +66,6 @@ export function AnalysisStatusModalContent({
       const res = await fetch('/api/send-mail', {
         method: 'POST',
         body: JSON.stringify({
-          email: 'luis.ramirez@cloudx.com',
           dimension: partialFeedbackDimension,
           html: emailHtml,
         }),
