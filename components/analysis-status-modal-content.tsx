@@ -1,6 +1,7 @@
 'use client';
 
-import { FileChartColumnIncreasing, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { FileChartColumnIncreasing, Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { render } from '@react-email/render';
 import { useDimensionStateContext } from '@/hooks/useDimensionStateContext';
@@ -36,6 +37,8 @@ export function AnalysisStatusModalContent({
   onCloseClick,
 }: AnalysisStatusModalContentProps) {
   const { dimensionState } = useDimensionStateContext();
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   if (!isViewingPartialFeedback) {
     return null;
@@ -54,8 +57,9 @@ export function AnalysisStatusModalContent({
     ],
   };
 
-  function onSendEmail() {
-    const handleSend = async () => {
+  async function onSendEmail() {
+    setIsSendingEmail(true);
+    try {
       const emailHtml = await render(
         DimensionEmailTemplate({
           partialFeedbackDimension: partialFeedbackDimension,
@@ -72,10 +76,16 @@ export function AnalysisStatusModalContent({
         headers: { 'Content-Type': 'application/json' },
       });
 
-      if (res.ok) alert('Sent!');
-      else alert('Error!');
-    };
-    handleSend();
+      if (res.ok) {
+        setEmailSent(true);
+      } else {
+        alert('Error sending email!');
+      }
+    } catch {
+      alert('Error sending email!');
+    } finally {
+      setIsSendingEmail(false);
+    }
   }
 
   return (
@@ -203,12 +213,25 @@ export function AnalysisStatusModalContent({
       <div className="no-print relative z-20 mt-4 flex justify-end gap-2">
         {/* Button to send email */}
         <Button
-          className="font:bg-green-500 rounded-md bg-blue-500 px-4 py-2 text-xs font-bold text-white uppercase transition-colors hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500"
-          onClick={() => {
-            onSendEmail();
-          }}
+          className={cn(
+            'rounded-md px-4 py-2 text-xs font-bold text-white uppercase transition-colors',
+            emailSent
+              ? 'cursor-not-allowed bg-green-500'
+              : 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-500 active:bg-blue-500'
+          )}
+          onClick={onSendEmail}
+          disabled={isSendingEmail || emailSent}
         >
-          SEND TO EMAIL
+          {isSendingEmail ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              SENDING...
+            </>
+          ) : emailSent ? (
+            'EMAIL SENT'
+          ) : (
+            'SEND TO EMAIL'
+          )}
         </Button>
         {/* Print button */}
         <Button
