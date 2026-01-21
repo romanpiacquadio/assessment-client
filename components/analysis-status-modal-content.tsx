@@ -39,6 +39,7 @@ export function AnalysisStatusModalContent({
   const { dimensionState } = useDimensionStateContext();
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const finalDimension = DIMENSIONS[DIMENSIONS.length - 1].toLowerCase();
 
   if (!isViewingPartialFeedback) {
     return null;
@@ -251,7 +252,9 @@ export function AnalysisStatusModalContent({
             onCloseClick();
           }}
         >
-          CONTINUE WITH NEXT DIMENSION
+          {partialFeedbackDimension?.toLowerCase() === finalDimension
+            ? 'RETURN TO CONVERSATION'
+            : 'CONTINUE WITH NEXT DIMENSION'}
         </Button>
 
         {/* Button to contact CloudX team for support */}
