@@ -31,43 +31,20 @@ export interface SandboxConfig {
     | null;
 }
 
+export interface DimensionStateItem {
+  scoring: number | null;
+  justification: string;
+  insights: string;
+  partial_feedback: string[];
+}
+
 export interface DimensionState {
-  Evolution: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
-  Outcome: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
-  Leverage: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
-  Sponsorship: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
-  Coverage: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
-  Alignment: {
-    scoring: number | null;
-    justification: string;
-    insights: string;
-    partial_feedback: string;
-  };
+  Evolution: DimensionStateItem;
+  Outcome: DimensionStateItem;
+  Leverage: DimensionStateItem;
+  Sponsorship: DimensionStateItem;
+  Coverage: DimensionStateItem;
+  Alignment: DimensionStateItem;
   current: string;
   final_report?: {
     executive_summary: string;
