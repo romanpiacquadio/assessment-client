@@ -57,6 +57,7 @@ export const SessionView = ({
 
   // Check if assessment is completed using the same logic as dimension-display
   const assessmentCompleted = dimensionState?.current === 'COMPLETED';
+  const isEndingByAgent = dimensionState?.current === 'ENDING_BY_AGENT';
 
   // Validate if we are waiting for partial feedback to show the analysis status evaluation component
   if (
@@ -249,6 +250,7 @@ export const SessionView = ({
                 onSendMessage={handleSendMessage}
                 isVoiceMode={isVoiceMode}
                 isViewingPartialFeedback={isViewingPartialFeedback}
+                isEndingByAgent={isEndingByAgent}
                 onToggleVoiceMode={handleToggleVoiceMode}
                 onDisconnect={() => onSessionFinished()}
               />
